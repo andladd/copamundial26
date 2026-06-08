@@ -209,14 +209,62 @@ main {
 .team-btn .todds { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .team-btn.selected .tname { color: var(--gold); }
 .team-btn.selected .todds { color: rgba(232,200,74,0.6); }
-.god-dot {
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #f97316;
-  margin-right: 4px;
-  vertical-align: middle;
+.team-btn { position: relative; }
+.team-btn.selected .todds { color: rgba(232,200,74,0.6); }
+
+/* ─── GROUP TOOLTIP ─── */
+.group-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #051810;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  padding: 10px 13px;
+  width: 180px;
+  z-index: 200;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
+.group-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(255,255,255,0.18);
+}
+.group-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #051810;
+  z-index: 1;
+}
+.tooltip-header {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+.tooltip-team {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tooltip-team:last-child { border-bottom: none; }
+.tooltip-team.highlight { color: var(--white); font-weight: 500; }
+.team-btn:hover .group-tooltip { display: block; }
 
 /* ─── PICK COUNTER ─── */
 .pick-counter {
@@ -594,6 +642,21 @@ main {
 <script>
 // ─── DATA ───────────────────────────────────────────────────────────────────
 
+const GROUP_MAP = {
+  A: ['Mexico','South Africa','South Korea','Czechia'],
+  B: ['Canada','Bosnia & Herz.','Qatar','Switzerland'],
+  C: ['Brazil','Morocco','Haiti','Scotland'],
+  D: ['United States','Paraguay','Australia','Türkiye'],
+  E: ['Germany','Curacao','Ivory Coast','Ecuador'],
+  F: ['Netherlands','Japan','Sweden','Tunisia'],
+  G: ['Belgium','Egypt','Iran','New Zealand'],
+  H: ['Spain','Cape Verde','Saudi Arabia','Uruguay'],
+  I: ['France','Senegal','Iraq','Norway'],
+  J: ['Argentina','Algeria','Austria','Jordan'],
+  K: ['Portugal','DR Congo','Uzbekistan','Colombia'],
+  L: ['England','Croatia','Ghana','Panama'],
+};
+
 const BANDS = [
   { id: 'b1', max: 2, teams: [
     {name:'France',    odds:470,  group:'I', god:true},
@@ -795,9 +858,18 @@ function renderBand(bandData) {
     const sel = state[id];
     if (sel.has(i)) btn.classList.add('selected');
     if (!sel.has(i) && sel.size >= max) btn.classList.add('disabled');
+    const groupTeams = GROUP_MAP[team.group] || [];
+    const tooltipRows = groupTeams.map(t => {
+      const isThis = t === team.name || t === 'United States' && team.name === 'USA';
+      return `<div class="tooltip-team ${isThis ? 'highlight' : ''}">${t}</div>`;
+    }).join('');
     btn.innerHTML = `
-      <span class="tname">${team.god ? '<span class="god-dot"></span>' : ''}${team.name}</span>
-      <span class="todds">Group ${team.group} &nbsp;·&nbsp; ${team.odds >= 250000 ? '+250,000' : '+' + team.odds.toLocaleString()}</span>`;
+      <span class="tname">${team.name}</span>
+      <span class="todds">Group ${team.group} &nbsp;·&nbsp; ${team.odds >= 250000 ? '+250,000' : '+' + team.odds.toLocaleString()}</span>
+      <div class="group-tooltip">
+        <div class="tooltip-header">Group ${team.group}</div>
+        ${tooltipRows}
+      </div>`;
     btn.onclick = () => toggleTeam(id, i, max);
     grid.appendChild(btn);
   });
