@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 World Cup Pool — Scoring Rules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pitch: #0a2a1a;
+  --pitch-mid: #0f3d26;
+  --pitch-light: #1a5c38;
+  --line: rgba(255,255,255,0.12);
+  --gold: #e8c84a;
+  --gold-dim: rgba(232,200,74,0.15);
+  --gold-border: rgba(232,200,74,0.35);
+  --white: #f5f2ea;
+  --muted: rgba(245,242,234,0.45);
+  --danger: #e05c4a;
+  --danger-dim: rgba(224,92,74,0.12);
+  --success: #5cb87a;
+  --success-dim: rgba(92,184,122,0.12);
+  --band1: #a78bfa;
+  --band2: #60a5fa;
+  --band3: #34d399;
+  --band4: #9ca3af;
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.12);
+  --r: 6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--pitch);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.nav-link {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 6px 16px;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  color: var(--muted);
+}
+.nav-link:hover { color: var(--white); border-color: var(--line); }
+.nav-link.active {
+  color: var(--gold);
+  border-color: var(--gold-border);
+  background: var(--gold-dim);
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative;
+  text-align: center;
+  padding: 3rem 1.5rem 2.5rem;
+  z-index: 1;
+  border-bottom: 1px solid var(--line);
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 2px;
+  background: var(--gold);
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: var(--white);
+}
+h1 span { color: var(--gold); }
+.subtitle {
+  margin-top: 1rem;
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 560px;
+  margin-inline: auto;
+  line-height: 1.8;
+}
+
+/* ─── LAYOUT ─── */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ─── SECTION HEADING ─── */
+.section-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  padding-left: 2px;
+}
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--pitch-mid);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.card-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+.card-header .sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+.card-prose {
+  padding: 1.25rem 1.5rem;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+  border-bottom: 1px solid var(--line);
+}
+.card-prose strong { color: var(--white); font-weight: 500; }
+
+/* ─── SCORING TABLE ─── */
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.score-table tr { border-bottom: 1px solid var(--line); }
+.score-table tr:last-child { border-bottom: none; }
+.score-table td {
+  padding: 11px 1.5rem;
+  font-size: 13px;
+  vertical-align: middle;
+}
+.score-table td:first-child { color: var(--white); }
+.score-table td:last-child {
+  text-align: right;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  width: 80px;
+}
+.score-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.pts-pos { color: var(--gold); }
+.pts-bonus { color: var(--success); }
+.pts-neg { color: var(--danger); }
+.pts-player { color: var(--band2); }
+
+.note-inline {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-weight: 300;
+}
+
+/* ─── MULTIPLIER BADGE ─── */
+.multiplier-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid var(--gold-border);
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ─── BAND TAGS ─── */
+.band-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.b1 { background: rgba(167,139,250,0.15); color: var(--band1); border: 1px solid rgba(167,139,250,0.3); }
+.b2 { background: rgba(96,165,250,0.15); color: var(--band2); border: 1px solid rgba(96,165,250,0.3); }
+.b3 { background: rgba(52,211,153,0.15); color: var(--band3); border: 1px solid rgba(52,211,153,0.3); }
+.b4 { background: rgba(156,163,175,0.15); color: var(--band4); border: 1px solid rgba(156,163,175,0.3); }
+
+/* ─── BAND STRUCTURE TABLE ─── */
+.band-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+.band-col {
+  background: var(--pitch-mid);
+  padding: 1.25rem 1.5rem;
+}
+.band-col-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.band-col-header h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+.band-picks {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.band-team-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.band-team-list li {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.band-team-list li:last-child { border-bottom: none; }
+.god-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--orange);
+  flex-shrink: 0;
+}
+.band-note {
+  margin-top: 0.75rem;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+  padding: 8px 10px;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,0.15);
+}
+
+/* ─── CALLOUT BOXES ─── */
+.callout {
+  padding: 1rem 1.5rem;
+  font-size: 13px;
+  line-height: 1.8;
+  border-top: 1px solid var(--line);
+}
+.callout strong { font-weight: 500; }
+.callout-gold { background: var(--gold-dim); color: rgba(232,200,74,0.85); border-top-color: var(--gold-border); }
+.callout-gold strong { color: var(--gold); }
+.callout-green { background: var(--success-dim); color: rgba(92,184,122,0.85); border-top-color: rgba(92,184,122,0.25); }
+.callout-green strong { color: var(--success); }
+.callout-red { background: var(--danger-dim); color: rgba(224,92,74,0.8); border-top-color: rgba(224,92,74,0.2); }
+.callout-red strong { color: var(--danger); }
+.callout-orange { background: var(--orange-dim); color: rgba(249,115,22,0.85); border-top-color: rgba(249,115,22,0.2); }
+.callout-orange strong { color: var(--orange); }
+.callout-blue { background: rgba(96,165,250,0.08); color: rgba(96,165,250,0.85); border-top-color: rgba(96,165,250,0.2); }
+.callout-blue strong { color: var(--band2); }
+
+/* ─── MAX POINTS BOX ─── */
+.max-pts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+.max-pts-cell {
+  background: var(--pitch-mid);
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+.max-pts-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.max-pts-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  color: var(--gold);
+}
+.max-pts-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ─── CTA ─── */
+.cta-wrap {
+  text-align: center;
+  padding: 1.5rem;
+}
+.cta-btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  color: var(--pitch);
+  background: var(--gold);
+  border: none;
+  border-radius: var(--r);
+  padding: 16px 48px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+}
+.cta-btn:hover { background: #f5d86b; transform: translateY(-1px); }
+.cta-sub { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+/* ─── DIVIDER ─── */
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 0.25rem 0;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="rules.html" class="nav-link active">Scoring Rules</a>
+  <a href="index.html" class="nav-link">Draft Your Roster</a>
+</nav>
+
+<header>
+  <p class="eyebrow">The 2026 World Cup Pool</p>
+  <h1>How It<br><span>Works</span></h1>
+  <p class="subtitle">You draft 10 nations and 2 players. Every goal, win, and upset earns your roster points across the full tournament — from group stage through the final.</p>
+  <p style="margin-top:1.25rem;font-size:13px;color:var(--gold);letter-spacing:0.05em;">$20 buy-in &nbsp;·&nbsp; Single entry per person &nbsp;·&nbsp; Venmo <strong>@andladd</strong></p>
+</header>
+
+<main>
+
+  <!-- ── HOW TO PLAY ── -->
+  <div>
+    <div class="section-heading">The basics</div>
+    <div class="card">
+      <div class="card-header"><h2>Your Roster</h2><span class="sub">12 scoring picks total</span></div>
+      <div class="card-prose">
+        Teams are divided into four bands based on their odds to win the tournament. You pick a set number from each band, which means every roster has a mix of favorites and longshots. Points accumulate across the entire tournament — a team you drafted in Band 3 that goes on a run can outscore your Band 1 picks if things break right. That's the whole game.
+        <br><br>
+        On top of your 10 teams, you pick one striker and one goalkeeper. Your striker earns points for every goal they score, and your goalkeeper earns points for every clean sheet. Both earn a big bonus if they win their individual award.
+      </div>
+      <div class="band-grid">
+
+        <div class="band-col">
+          <div class="band-col-header">
+            <h3>Band 1</h3>
+            <span class="band-tag b1">Favorites</span>
+          </div>
+          <div class="band-picks">Pick 2 of 6</div>
+          <ul class="band-team-list">
+            <li>France <span style="margin-left:auto;font-size:11px">+470</span></li>
+            <li>Spain <span style="margin-left:auto;font-size:11px">+480</span></li>
+            <li>England <span style="margin-left:auto;font-size:11px">+650</span></li>
+            <li>Brazil <span style="margin-left:auto;font-size:11px">+800</span></li>
+            <li>Portugal <span style="margin-left:auto;font-size:11px">+950</span></li>
+            <li>Argentina <span style="margin-left:auto;font-size:11px">+950</span></li>
+          </ul>
+          <div class="band-note">Standard scoring applies. These teams are expected to go deep — the scoring is calibrated so they need to in order to compete at the top of the leaderboard.</div>
+        </div>
+
+        <div class="band-col">
+          <div class="band-col-header">
+            <h3>Band 2</h3>
+            <span class="band-tag b2">Contenders</span>
+          </div>
+          <div class="band-picks">Pick 3 of 14</div>
+          <ul class="band-team-list">
+            <li>Germany <span style="margin-left:auto;font-size:11px">+1300</span></li>
+            <li>Netherlands <span style="margin-left:auto;font-size:11px">+1600</span></li>
+            <li>Belgium <span style="margin-left:auto;font-size:11px">+2200</span></li>
+            <li>Norway <span style="margin-left:auto;font-size:11px">+3000</span></li>
+            <li>Colombia <span style="margin-left:auto;font-size:11px">+3500</span></li>
+            <li>Japan <span style="margin-left:auto;font-size:11px">+4500</span></li>
+            <li>Morocco <span style="margin-left:auto;font-size:11px">+5000</span></li>
+            <li>USA <span style="margin-left:auto;font-size:11px">+5500</span></li>
+            <li>Uruguay <span style="margin-left:auto;font-size:11px">+5500</span></li>
+            <li>Mexico <span style="margin-left:auto;font-size:11px">+6000</span></li>
+            <li>Türkiye <span style="margin-left:auto;font-size:11px">+7000</span></li>
+            <li>Switzerland <span style="margin-left:auto;font-size:11px">+7000</span></li>
+            <li>Croatia <span style="margin-left:auto;font-size:11px">+7500</span></li>
+            <li>Ecuador <span style="margin-left:auto;font-size:11px">+8000</span></li>
+          </ul>
+          <div class="band-note">Standard scoring. Any Band 2 team from a Group of Death earns a +2 bonus for simply advancing out of group play.</div>
+        </div>
+
+        <div class="band-col">
+          <div class="band-col-header">
+            <h3>Band 3</h3>
+            <span class="band-tag b3">Longshots</span>
+          </div>
+          <div class="band-picks">Pick 3 of 15</div>
+          <ul class="band-team-list">
+            <li>Senegal <span style="margin-left:auto;font-size:11px">+12500</span></li>
+            <li>Austria <span style="margin-left:auto;font-size:11px">+12500</span></li>
+            <li>Canada <span style="margin-left:auto;font-size:11px">+15000</span></li>
+            <li>Sweden <span style="margin-left:auto;font-size:11px">+17500</span></li>
+            <li>Ivory Coast <span style="margin-left:auto;font-size:11px">+17500</span></li>
+            <li>Scotland <span style="margin-left:auto;font-size:11px">+17500</span></li>
+            <li>Paraguay <span style="margin-left:auto;font-size:11px">+20000</span></li>
+            <li>Algeria <span style="margin-left:auto;font-size:11px">+25000</span></li>
+            <li>Egypt <span style="margin-left:auto;font-size:11px">+35000</span></li>
+            <li>Ghana <span style="margin-left:auto;font-size:11px">+35000</span></li>
+            <li>Czechia <span style="margin-left:auto;font-size:11px">+50000</span></li>
+            <li>South Korea <span style="margin-left:auto;font-size:11px">+60000</span></li>
+            <li>Iran <span style="margin-left:auto;font-size:11px">+75000</span></li>
+            <li>Bosnia &amp; Herz. <span style="margin-left:auto;font-size:11px">+75000</span></li>
+            <li>Tunisia <span style="margin-left:auto;font-size:11px">+100000</span></li>
+          </ul>
+          <div class="band-note">If a Band 3 team advances past the Round of 16, you earn a +5 upset bonus on top of normal knockout points. These are the picks that can blow up a leaderboard.</div>
+        </div>
+
+        <div class="band-col">
+          <div class="band-col-header">
+            <h3>Band 4</h3>
+            <span class="band-tag b4">Wildcards</span>
+          </div>
+          <div class="band-picks">Pick 2 of 13</div>
+          <ul class="band-team-list">
+            <li>Cape Verde</li>
+            <li>Uzbekistan</li>
+            <li>Curacao</li>
+            <li>Panama</li>
+            <li>Haiti</li>
+            <li>Australia</li>
+            <li>Qatar</li>
+            <li>Saudi Arabia</li>
+            <li>Iraq</li>
+            <li>Jordan</li>
+            <li>New Zealand</li>
+            <li>DR Congo</li>
+            <li>South Africa</li>
+          </ul>
+          <div class="band-note">All listed at +250,000. Pick on gut or flag loyalty. Group stage points are doubled for Band 4 teams. Every knockout win also earns +3 on top of standard points — a Band 4 team that somehow reaches the Round of 16 is worth paying attention to.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── GROUP STAGE ── -->
+  <div>
+    <div class="section-heading">Group stage scoring</div>
+    <div class="card">
+      <div class="card-header">
+        <h2>Group Stage</h2>
+        <span class="sub">Band 4 teams earn double points</span>
+      </div>
+      <div class="card-prose">
+        Group stage points are straightforward for Bands 1, 2, and 3 — you earn the base value for every win, tie, and finishing position. <strong>Band 4 wildcard teams are the exception:</strong> all of their group stage points are doubled. This gives your longshot picks real scoring potential even if they don't survive to the knockouts, and rewards the risk of drafting a 250,000-to-1 side.
+        <br><br>
+        A Band 4 team that goes 3-0-0 and wins their group earns 24 points from group stage alone — more than a Band 1 team in the same scenario. That's the whole point.
+      </div>
+      <table class="score-table">
+        <tr>
+          <td>Win</td>
+          <td class="pts-pos">3 pts</td>
+        </tr>
+        <tr>
+          <td>Tie</td>
+          <td class="pts-pos">1 pt</td>
+        </tr>
+        <tr>
+          <td>Group winner</td>
+          <td class="pts-pos">3 pts</td>
+        </tr>
+        <tr>
+          <td>Group 2nd place</td>
+          <td class="pts-pos">2 pts</td>
+        </tr>
+        <tr>
+          <td>3rd place advance<span class="note-inline">In a 48-team tournament, the best 3rd-place finishers also advance.</span></td>
+          <td class="pts-pos">1 pt</td>
+        </tr>
+      </table>
+      <div class="callout callout-gold">
+        <strong>Band 4 exception:</strong> All group stage points are doubled for Band 4 wildcard teams. A Band 4 team that goes 3-0-0 and wins their group earns 24 pts from group play alone before any bonuses.
+        <br><br>
+        <strong>Perfect group stage bonus:</strong> Any team that goes 3-0-0 earns an additional +3, regardless of band.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── KNOCKOUT ── -->
+  <div>
+    <div class="section-heading">Knockout rounds</div>
+    <div class="card">
+      <div class="card-header"><h2>Knockout Rounds</h2><span class="sub">No multiplier — points escalate by round</span></div>
+      <div class="card-prose">
+        Points scale steeply as rounds progress. A team winning the Round of 32 earns less than winning the Quarterfinal — intentionally. This structure means a dark horse that keeps winning can catch a Band 1 team that exits in the Quarters, but a Band 1 team that goes all the way to the trophy is very hard to beat.
+      </div>
+      <table class="score-table">
+        <tr>
+          <td>Round of 32 win</td>
+          <td class="pts-pos">3 pts</td>
+        </tr>
+        <tr>
+          <td>Round of 16 win</td>
+          <td class="pts-pos">6 pts</td>
+        </tr>
+        <tr>
+          <td>Quarterfinal win</td>
+          <td class="pts-pos">10 pts</td>
+        </tr>
+        <tr>
+          <td>Semifinal win</td>
+          <td class="pts-pos">15 pts</td>
+        </tr>
+        <tr>
+          <td>Champion<span class="note-inline">Winning the final. There is no runner-up bonus — the reward is winning.</span></td>
+          <td class="pts-pos">25 pts</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ── BONUSES ── -->
+  <div>
+    <div class="section-heading">Bonuses</div>
+    <div class="card">
+      <div class="card-header"><h2>Bonus Points</h2></div>
+      <div class="card-prose">
+        Bonuses create separate storylines that run alongside the main bracket. Clean sheets reward defensive excellence match by match. The upset bonus is the single highest-variance item in the pool — one Band 3 team reaching the Quarterfinals can swing a leaderboard by 15+ points. The Group of Death bonus is the only conditional rule: it gets applied after the draw based on which groups contain multiple elite sides.
+      </div>
+      <table class="score-table">
+        <tr>
+          <td>
+            Clean sheet
+            <span class="note-inline">Any match, any round. Applies to all 10 teams on your roster.</span>
+          </td>
+          <td class="pts-bonus">+1 pt</td>
+        </tr>
+        <tr>
+          <td>
+            Perfect group stage
+            <span class="note-inline">Your team wins all three group games (3-0-0).</span>
+          </td>
+          <td class="pts-bonus">+3 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Upset bonus — Band 3 or 4 team past Round of 16
+            <span class="note-inline">Earned once per team per tournament. Stacks with knockout points.</span>
+          </td>
+          <td class="pts-bonus">+5 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Band 4 knockout win
+            <span class="note-inline">Earned for each individual knockout win by a Band 4 team. Separate from the upset bonus.</span>
+          </td>
+          <td class="pts-bonus">+3 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Group of Death escape
+            <span class="note-inline">Assigned after the draw. Any team that advances from a group with 2+ top-tier sides earns this.</span>
+          </td>
+          <td class="pts-bonus">+2 pts</td>
+        </tr>
+      </table>
+      <div class="callout callout-orange">
+        <strong>Group of Death explained:</strong> After the draw, groups containing two or more Band 1 teams — or one Band 1 team plus two top Band 2 teams — will be designated Groups of Death. Any team on your roster that advances out of one of those groups earns the +2 bonus automatically. Teams in those groups will be marked with an orange dot in the entry form once the draw is confirmed.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── PENALTIES ── -->
+  <div>
+    <div class="section-heading">Penalties</div>
+    <div class="card">
+      <div class="card-header"><h2>Point Deductions</h2></div>
+      <div class="card-prose">
+        Two deductions keep roster management honest. The blowout penalty discourages drafting weak teams purely for group stage volume — if they get demolished, it costs you. The PK penalty applies only in knockout rounds, where shootout losses are already painful enough without costing a full -3.
+      </div>
+      <table class="score-table">
+        <tr>
+          <td>
+            Loss by 3 or more goals
+            <span class="note-inline">Any match, any round.</span>
+          </td>
+          <td class="pts-neg">-3 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Loss on penalties
+            <span class="note-inline">Knockout rounds only. A PK loss means your team still scored normally in regulation and extra time.</span>
+          </td>
+          <td class="pts-neg">-2 pts</td>
+        </tr>
+      </table>
+      <div class="callout callout-red">
+        <strong>Worth noting:</strong> A Band 4 wildcard that gets hammered 5-0 in a group game costs you 3 points — effectively wiping out a group stage win from another team on your roster. Pick your wildcards with a small amount of dignity.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── PLAYER PICKS ── -->
+  <div>
+    <div class="section-heading">Player picks</div>
+    <div class="card">
+      <div class="card-header"><h2>Striker &amp; Goalkeeper</h2><span class="sub">2 picks, scoring throughout the tournament</span></div>
+      <div class="card-prose">
+        Your two player picks score independently of your team roster. You can pick a player from any nation in the tournament — they do not have to be on one of your drafted teams. This creates a second layer of strategy: do you double down on a team you've already drafted, or hedge with a player from a rival nation?
+        <br><br>
+        Player points accumulate match by match. Unlike your team picks, which have a ceiling based on how far a nation advances, your striker can keep scoring even in a group stage exit if they bag a hat-trick. Your goalkeeper earns every time their team keeps a clean sheet, regardless of the result.
+      </div>
+      <table class="score-table">
+        <tr>
+          <td>
+            Goal scored by your striker
+            <span class="note-inline">Applies in every match, every round, including own goals credited to the player.</span>
+          </td>
+          <td class="pts-player">+2 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Clean sheet kept by your goalkeeper
+            <span class="note-inline">Your keeper's team concedes zero goals in 90 minutes. Extra time counts; penalty shootouts do not.</span>
+          </td>
+          <td class="pts-player">+2 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Golden Boot — your striker wins it
+            <span class="note-inline">Awarded to the tournament's top scorer. Ties broken by assists, then minutes played.</span>
+          </td>
+          <td class="pts-player">+10 pts</td>
+        </tr>
+        <tr>
+          <td>
+            Golden Glove — your goalkeeper wins it
+            <span class="note-inline">Awarded to the best goalkeeper of the tournament as voted by FIFA's technical committee.</span>
+          </td>
+          <td class="pts-player">+10 pts</td>
+        </tr>
+      </table>
+      <div class="callout callout-blue">
+        <strong>Strategy note:</strong> Picking Mbappe at +600 is safe but everyone is doing it. A striker like Erling Haaland (+1400) on a Norway side that could run hot, or a Jonathan David (+6000) who quietly scores four in the group stage, can be more valuable relative to their draft cost. Your goalkeeper pick is less about the award and more about the clean sheet accumulation — a keeper on a defensive side that goes deep is a quiet engine.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── MAX POINTS ── -->
+  <div>
+    <div class="section-heading">Maximum possible points</div>
+    <div class="card">
+      <div class="card-header"><h2>Theoretical Ceiling</h2><span class="sub">Best-case scenario for a champion roster</span></div>
+      <div class="card-prose">
+        A team that wins the championship, goes 3-0-0 in group play, wins all seven matches by clean sheets, and whose player wins the Golden Boot maxes out at the following. No realistic roster hits all of these — this is just the ceiling to understand how the scoring scales.
+      </div>
+      <div class="max-pts-grid">
+        <div class="max-pts-cell">
+          <div class="max-pts-label">Group wins (3 × 6)</div>
+          <div class="max-pts-val">18</div>
+          <div class="max-pts-sub">doubled</div>
+        </div>
+        <div class="max-pts-cell">
+          <div class="max-pts-label">Group winner bonus</div>
+          <div class="max-pts-val">6</div>
+          <div class="max-pts-sub">doubled</div>
+        </div>
+        <div class="max-pts-cell">
+          <div class="max-pts-label">Perfect group bonus</div>
+          <div class="max-pts-val">3</div>
+          <div class="max-pts-sub">one-time</div>
+        </div>
+        <div class="max-pts-cell">
+          <div class="max-pts-label">Clean sheets (7)</div>
+          <div class="max-pts-val">7</div>
+          <div class="max-pts-sub">per match</div>
+        </div>
+        <div class="max-pts-cell">
+          <div class="max-pts-label">Knockout run</div>
+          <div class="max-pts-val">59</div>
+          <div class="max-pts-sub">R32–Final</div>
+        </div>
+        <div class="max-pts-cell">
+          <div class="max-pts-label">Golden Boot</div>
+          <div class="max-pts-val">10</div>
+          <div class="max-pts-sub">player pick</div>
+        </div>
+      </div>
+      <div class="callout callout-gold">
+        A single team hitting every milestone above would contribute <strong>103 points</strong> to your roster. In practice, a well-drafted 10-team roster with strong player picks competing at the top of the pool will land somewhere between 120 and 180 total — depending on how lucky your longshots run.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── CTA ── -->
+  <div class="card">
+    <div class="cta-wrap">
+      <a href="index.html" class="cta-btn">Draft Your Roster</a>
+      <p class="cta-sub">Picks lock when the tournament kicks off. No changes after submission.</p>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>

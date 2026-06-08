@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 World Cup Pool — Draft Your Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --pitch: #0a2a1a;
+  --pitch-mid: #0f3d26;
+  --pitch-light: #1a5c38;
+  --line: rgba(255,255,255,0.12);
+  --gold: #e8c84a;
+  --gold-dim: rgba(232,200,74,0.15);
+  --gold-border: rgba(232,200,74,0.35);
+  --white: #f5f2ea;
+  --muted: rgba(245,242,234,0.45);
+  --danger: #e05c4a;
+  --success: #5cb87a;
+  --band1: #a78bfa;
+  --band2: #60a5fa;
+  --band3: #34d399;
+  --band4: #9ca3af;
+  --r: 6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--pitch);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── PITCH LINES BACKGROUND ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative;
+  text-align: center;
+  padding: 3.5rem 1.5rem 2.5rem;
+  z-index: 1;
+  border-bottom: 1px solid var(--line);
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 2px;
+  background: var(--gold);
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: var(--white);
+}
+h1 span { color: var(--gold); }
+.subtitle {
+  margin-top: 1rem;
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 520px;
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+/* ─── LAYOUT ─── */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,42,26,0.92);
+  backdrop-filter: blur(10px);
+  padding: 12px 1.5rem;
+  border-bottom: 1px solid var(--line);
+  margin: 0 -1.5rem;
+}
+.progress-inner { max-width: 860px; margin: 0 auto; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.progress-label strong { color: var(--gold); }
+.progress-track {
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ─── SECTION CARDS ─── */
+.card {
+  background: var(--pitch-mid);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.card-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+.card-header .rule {
+  font-size: 12px;
+  color: var(--muted);
+}
+.band-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-left: auto;
+}
+.b1 { background: rgba(167,139,250,0.15); color: var(--band1); border: 1px solid rgba(167,139,250,0.3); }
+.b2 { background: rgba(96,165,250,0.15); color: var(--band2); border: 1px solid rgba(96,165,250,0.3); }
+.b3 { background: rgba(52,211,153,0.15); color: var(--band3); border: 1px solid rgba(52,211,153,0.3); }
+.b4 { background: rgba(156,163,175,0.15); color: var(--band4); border: 1px solid rgba(156,163,175,0.3); }
+
+/* ─── TEAM GRID ─── */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 1.25rem 1.5rem;
+}
+.team-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+}
+.team-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
+.team-btn.selected {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+}
+.team-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.team-btn .tname { font-size: 13px; font-weight: 500; line-height: 1.3; }
+.team-btn .todds { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.team-btn.selected .tname { color: var(--gold); }
+.team-btn.selected .todds { color: rgba(232,200,74,0.6); }
+.god-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #f97316;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ─── PICK COUNTER ─── */
+.pick-counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 1.5rem;
+  background: rgba(0,0,0,0.2);
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+.counter-dots { display: flex; gap: 5px; }
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  transition: all 0.2s;
+}
+.dot.filled { background: var(--gold); border-color: var(--gold); }
+.dot.over { background: var(--danger); border-color: var(--danger); }
+.pick-status { margin-left: auto; font-weight: 500; }
+.pick-status.complete { color: var(--success); }
+.pick-status.over { color: var(--danger); }
+
+/* ─── PLAYER LIST ─── */
+.player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.player-list::-webkit-scrollbar { width: 4px; }
+.player-list::-webkit-scrollbar-track { background: transparent; }
+.player-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 1.5rem;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.player-row:last-child { border-bottom: none; }
+.player-row:hover { background: rgba(255,255,255,0.04); }
+.player-row.selected { background: var(--gold-dim); }
+.player-check {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 10px;
+}
+.player-row.selected .player-check {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--pitch);
+}
+.player-info { flex: 1; }
+.player-name { font-size: 13px; font-weight: 500; }
+.player-country { font-size: 11px; color: var(--muted); }
+.player-odds { font-size: 12px; color: var(--muted); margin-left: auto; }
+.player-row.selected .player-name { color: var(--gold); }
+.player-row.selected .player-odds { color: rgba(232,200,74,0.7); }
+.player-row.disabled { opacity: 0.3; pointer-events: none; }
+
+/* ─── PLAYER SEARCH ─── */
+.player-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); }
+.player-search {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 9px 14px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+}
+.player-search::placeholder { color: var(--muted); }
+.player-search:focus { outline: none; border-color: var(--gold-border); }
+
+/* ─── TEXT INPUTS ─── */
+.field-group { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; }
+.field-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field-input {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 11px 14px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+}
+.field-input:focus { outline: none; border-color: var(--gold-border); background: rgba(0,0,0,0.4); }
+.field-input::placeholder { color: rgba(245,242,234,0.2); }
+
+/* ─── GOALIE SECTION ─── */
+.goalie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 1.25rem 1.5rem;
+}
+.goalie-btn {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+}
+.goalie-btn:hover { background: rgba(255,255,255,0.08); }
+.goalie-btn.selected { background: var(--gold-dim); border-color: var(--gold); }
+.goalie-btn .gname { font-size: 13px; font-weight: 500; }
+.goalie-btn .gcountry { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.goalie-btn.selected .gname { color: var(--gold); }
+
+/* ─── ROSTER SUMMARY ─── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  padding: 1.5rem;
+}
+.summary-chip {
+  padding: 8px 12px;
+  border-radius: var(--r);
+  font-size: 12px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  color: rgba(245,242,234,0.3);
+}
+.summary-chip.filled {
+  border-style: solid;
+  border-color: var(--gold-border);
+  color: var(--white);
+  background: var(--gold-dim);
+}
+.summary-chip .chip-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 2px; }
+.summary-chip.filled .chip-label { color: rgba(232,200,74,0.6); }
+
+/* ─── SUBMIT ─── */
+.submit-section { text-align: center; padding: 0 1.5rem; }
+.validation-msg {
+  font-size: 13px;
+  color: var(--danger);
+  margin-bottom: 1rem;
+  min-height: 20px;
+}
+.submit-btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  color: var(--pitch);
+  background: var(--gold);
+  border: none;
+  border-radius: var(--r);
+  padding: 16px 48px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  max-width: 360px;
+}
+.submit-btn:hover { background: #f5d86b; transform: translateY(-1px); }
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+.submit-note { font-size: 11px; color: var(--muted); margin-top: 10px; }
+
+/* ─── SUCCESS ─── */
+#success-screen {
+  display: none;
+  text-align: center;
+  padding: 4rem 1.5rem;
+}
+#success-screen h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+#success-screen p { color: var(--muted); font-size: 14px; line-height: 1.7; max-width: 400px; margin: 0 auto; }
+
+/* ─── SECTION DIVIDER ─── */
+.section-note {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px 1.5rem 12px;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.6;
+}
+
+/* ─── GOD LEGEND ─── */
+.god-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 8px 1.5rem;
+  background: rgba(249,115,22,0.05);
+  border-bottom: 1px solid var(--line);
+}
+</style>
+</head>
+<body>
+
+<nav style="position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:4px;padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.12);">
+  <a href="rules.html" style="font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:6px 16px;border-radius:6px;border:1px solid transparent;color:rgba(245,242,234,0.45);transition:all 0.15s;" onmouseover="this.style.color='#f5f2ea';this.style.borderColor='rgba(255,255,255,0.12)'" onmouseout="this.style.color='rgba(245,242,234,0.45)';this.style.borderColor='transparent'">Scoring Rules</a>
+  <a href="index.html" style="font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:6px 16px;border-radius:6px;border:1px solid rgba(232,200,74,0.35);background:rgba(232,200,74,0.15);color:#e8c84a;">Draft Your Roster</a>
+</nav>
+
+<header>
+  <p class="eyebrow">The 2026 World Cup Pool</p>
+  <h1>Draft Your<br><span>Roster</span></h1>
+  <p class="subtitle">Pick 2 from Band 1, 3 from Bands 2 and 3, 2 from Band 4, plus your striker and goalkeeper. 12 scoring selections total.</p>
+</header>
+
+<main id="main-form">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="progress-label">
+        <span>Roster complete</span>
+        <strong id="prog-label">0 / 12 picks</strong>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- PARTICIPANT INFO -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Your Info</h2>
+    </div>
+    <div class="field-group">
+      <div>
+        <div class="field-label">Full name</div>
+        <input class="field-input" type="text" id="f-name" placeholder="Andrew Ladd" autocomplete="name">
+      </div>
+      <div>
+        <div class="field-label">Email address</div>
+        <input class="field-input" type="email" id="f-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+    </div>
+  </div>
+
+  <!-- BAND 1 -->
+  <div class="card" id="card-b1">
+    <div class="card-header">
+      <h2>Band 1</h2>
+      <span class="card-header rule">Pick 2 of 6</span>
+      <span class="band-tag b1">Favorites</span>
+    </div>
+    <div class="team-grid" id="grid-b1"></div>
+    <div class="pick-counter">
+      <div class="counter-dots" id="dots-b1"></div>
+      <span class="pick-status" id="status-b1">0 of 2 selected</span>
+    </div>
+  </div>
+
+  <!-- BAND 2 -->
+  <div class="card" id="card-b2">
+    <div class="card-header">
+      <h2>Band 2</h2>
+      <span class="card-header rule">Pick 3 of 14</span>
+      <span class="band-tag b2">Contenders</span>
+    </div>
+    <div class="god-legend"><span class="god-dot"></span> Orange dot = Group of Death team (confirmed after draw)</div>
+    <div class="team-grid" id="grid-b2"></div>
+    <div class="pick-counter">
+      <div class="counter-dots" id="dots-b2"></div>
+      <span class="pick-status" id="status-b2">0 of 3 selected</span>
+    </div>
+  </div>
+
+  <!-- BAND 3 -->
+  <div class="card" id="card-b3">
+    <div class="card-header">
+      <h2>Band 3</h2>
+      <span class="card-header rule">Pick 3 of 15</span>
+      <span class="band-tag b3">Longshots</span>
+    </div>
+    <div class="team-grid" id="grid-b3"></div>
+    <div class="pick-counter">
+      <div class="counter-dots" id="dots-b3"></div>
+      <span class="pick-status" id="status-b3">0 of 3 selected</span>
+    </div>
+  </div>
+
+  <!-- BAND 4 -->
+  <div class="card" id="card-b4">
+    <div class="card-header">
+      <h2>Band 4</h2>
+      <span class="card-header rule">Pick 2 of 13</span>
+      <span class="band-tag b4">Wildcards</span>
+    </div>
+    <div class="section-note">Any Band 4 team that wins a knockout game earns you +3 bonus points per win.</div>
+    <div class="team-grid" id="grid-b4"></div>
+    <div class="pick-counter">
+      <div class="counter-dots" id="dots-b4"></div>
+      <span class="pick-status" id="status-b4">0 of 2 selected</span>
+    </div>
+  </div>
+
+  <!-- STRIKER PICK -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Your Striker</h2>
+      <span class="card-header rule">Pick 1 — Golden Boot contender</span>
+    </div>
+    <div class="section-note">+2 pts per goal scored. +10 pts if they win the Golden Boot.</div>
+    <div class="player-search-wrap">
+      <input class="player-search" type="text" id="striker-search" placeholder="Search by name or country…" oninput="filterPlayers('striker')">
+    </div>
+    <div class="player-list" id="list-striker"></div>
+    <div class="pick-counter">
+      <div class="counter-dots" id="dots-striker"></div>
+      <span class="pick-status" id="status-striker">0 of 1 selected</span>
+    </div>
+  </div>
+
+  <!-- GOALKEEPER PICK -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Your Goalkeeper</h2>
+      <span class="card-header rule">Pick 1 — Golden Glove contender</span>
+    </div>
+    <div class="section-note">+2 pts per clean sheet. +10 pts if they win the Golden Glove.</div>
+    <div class="goalie-grid" id="grid-goalies"></div>
+    <div class="pick-counter">
+      <div class="counter-dots" id="dots-gk"></div>
+      <span class="pick-status" id="status-gk">0 of 1 selected</span>
+    </div>
+  </div>
+
+  <!-- ROSTER SUMMARY -->
+  <div class="card">
+    <div class="card-header"><h2>Your Roster</h2></div>
+    <div class="summary-grid" id="summary-grid"></div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-section">
+    <div class="validation-msg" id="val-msg"></div>
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit My Picks</button>
+    <p class="submit-note">Your picks will be saved to the pool spreadsheet.</p>
+  </div>
+
+</main>
+
+<!-- SUCCESS -->
+<div id="success-screen">
+  <h2>You're In.</h2>
+  <p>Your roster has been submitted. Good luck — may your longshots cause chaos and your Band 1 picks remember they're supposed to be good.</p>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const BANDS = [
+  { id: 'b1', max: 2, teams: [
+    {name:'France', odds:470, god:false},
+    {name:'Spain', odds:480, god:false},
+    {name:'England', odds:650, god:false},
+    {name:'Brazil', odds:800, god:false},
+    {name:'Portugal', odds:950, god:false},
+    {name:'Argentina', odds:950, god:false},
+  ]},
+  { id: 'b2', max: 3, teams: [
+    {name:'Germany', odds:1300, god:false},
+    {name:'Netherlands', odds:1600, god:false},
+    {name:'Belgium', odds:2200, god:false},
+    {name:'Norway', odds:3000, god:false},
+    {name:'Colombia', odds:3500, god:false},
+    {name:'Japan', odds:4500, god:false},
+    {name:'Morocco', odds:5000, god:false},
+    {name:'USA', odds:5500, god:false},
+    {name:'Uruguay', odds:5500, god:false},
+    {name:'Mexico', odds:6000, god:false},
+    {name:'Türkiye', odds:7000, god:false},
+    {name:'Switzerland', odds:7000, god:false},
+    {name:'Croatia', odds:7500, god:false},
+    {name:'Ecuador', odds:8000, god:false},
+  ]},
+  { id: 'b3', max: 3, teams: [
+    {name:'Senegal', odds:12500, god:false},
+    {name:'Austria', odds:12500, god:false},
+    {name:'Canada', odds:15000, god:false},
+    {name:'Sweden', odds:17500, god:false},
+    {name:'Ivory Coast', odds:17500, god:false},
+    {name:'Scotland', odds:17500, god:false},
+    {name:'Paraguay', odds:20000, god:false},
+    {name:'Algeria', odds:25000, god:false},
+    {name:'Egypt', odds:35000, god:false},
+    {name:'Ghana', odds:35000, god:false},
+    {name:'Czechia', odds:50000, god:false},
+    {name:'South Korea', odds:60000, god:false},
+    {name:'Iran', odds:75000, god:false},
+    {name:'Bosnia & Herz.', odds:75000, god:false},
+    {name:'Tunisia', odds:100000, god:false},
+  ]},
+  { id: 'b4', max: 2, teams: [
+    {name:'Cape Verde', odds:250000, god:false},
+    {name:'Uzbekistan', odds:250000, god:false},
+    {name:'Curacao', odds:250000, god:false},
+    {name:'Panama', odds:250000, god:false},
+    {name:'Haiti', odds:250000, god:false},
+    {name:'Australia', odds:250000, god:false},
+    {name:'Qatar', odds:250000, god:false},
+    {name:'Saudi Arabia', odds:250000, god:false},
+    {name:'Iraq', odds:250000, god:false},
+    {name:'Jordan', odds:250000, god:false},
+    {name:'New Zealand', odds:250000, god:false},
+    {name:'DR Congo', odds:250000, god:false},
+    {name:'South Africa', odds:250000, god:false},
+  ]},
+];
+
+const STRIKERS = [
+  {name:'Kylian Mbappe', country:'France', odds:'+600'},
+  {name:'Harry Kane', country:'England', odds:'+700'},
+  {name:'Erling Haaland', country:'Norway', odds:'+1400'},
+  {name:'Mikel Oyarzabal', country:'Spain', odds:'+1400'},
+  {name:'Lionel Messi', country:'Argentina', odds:'+1600'},
+  {name:'Lamine Yamal', country:'Spain', odds:'+2000'},
+  {name:'Cristiano Ronaldo', country:'Portugal', odds:'+2200'},
+  {name:'Julian Alvarez', country:'Argentina', odds:'+3000'},
+  {name:'Raphinha', country:'Brazil', odds:'+3000'},
+  {name:'Lautaro Martinez', country:'Argentina', odds:'+3000'},
+  {name:'Vinicius Junior', country:'Brazil', odds:'+3000'},
+  {name:'Ousmane Dembele', country:'France', odds:'+3000'},
+  {name:'Igor Thiago', country:'Brazil', odds:'+3300'},
+  {name:'Romelu Lukaku', country:'Belgium', odds:'+3500'},
+  {name:'Kai Havertz', country:'Germany', odds:'+3500'},
+  {name:'Florian Wirtz', country:'Germany', odds:'+4000'},
+  {name:'Cody Gakpo', country:'Netherlands', odds:'+4000'},
+  {name:'Ferran Torres', country:'Spain', odds:'+4000'},
+  {name:'Nick Woltemade', country:'Germany', odds:'+4000'},
+  {name:'Michael Olise', country:'France', odds:'+4500'},
+  {name:'Luis Javier Suarez', country:'Colombia', odds:'+4500'},
+  {name:'Charles De Ketelaere', country:'Belgium', odds:'+4500'},
+  {name:'Luis Diaz', country:'Colombia', odds:'+5000'},
+  {name:'Matheus Cunha', country:'Brazil', odds:'+5000'},
+  {name:'Jamal Musiala', country:'Germany', odds:'+5000'},
+  {name:'Ollie Watkins', country:'England', odds:'+5000'},
+  {name:'Bukayo Saka', country:'England', odds:'+5500'},
+  {name:'Jonathan David', country:'Canada', odds:'+6000'},
+  {name:'Bruno Fernandes', country:'Portugal', odds:'+6000'},
+  {name:'Jude Bellingham', country:'England', odds:'+6000'},
+  {name:'Memphis Depay', country:'Netherlands', odds:'+6000'},
+  {name:'Desire Doue', country:'France', odds:'+6000'},
+  {name:'Neymar Jr', country:'Brazil', odds:'+6000'},
+  {name:'Brian Brobbey', country:'Netherlands', odds:'+6000'},
+  {name:'Marcus Thuram', country:'France', odds:'+6500'},
+  {name:'Darwin Nunez', country:'Uruguay', odds:'+6500'},
+  {name:'Enner Valencia', country:'Ecuador', odds:'+6500'},
+  {name:'Jeremy Doku', country:'Belgium', odds:'+6500'},
+  {name:'Eberechi Eze', country:'England', odds:'+6500'},
+  {name:'Leroy Sane', country:'Germany', odds:'+6500'},
+  {name:'Pedro Neto', country:'Portugal', odds:'+6500'},
+  {name:'Alexander Sorloth', country:'Norway', odds:'+8000'},
+  {name:'Rafael Leao', country:'Portugal', odds:'+8000'},
+  {name:'Christian Pulisic', country:'USA', odds:'+8000'},
+  {name:'Sadio Mane', country:'Senegal', odds:'+8000'},
+  {name:'Mohamed Salah', country:'Egypt', odds:'+8000'},
+  {name:'Viktor Gyokeres', country:'Sweden', odds:'+8000'},
+  {name:'Alexander Isak', country:'Sweden', odds:'+8000'},
+  {name:'Endrick', country:'Brazil', odds:'+8000'},
+  {name:'Son Heung-min', country:'South Korea', odds:'+10000'},
+  {name:'Youssef En-Nesyri', country:'Morocco', odds:'+10000'},
+  {name:'Scott McTominay', country:'Scotland', odds:'+10000'},
+  {name:'Santiago Gimenez', country:'Mexico', odds:'+10000'},
+  {name:'Alphonso Davies', country:'Canada', odds:'+10000'},
+  {name:'Arda Guler', country:'Türkiye', odds:'+10000'},
+  {name:'James Rodriguez', country:'Colombia', odds:'+10000'},
+  {name:'Kevin De Bruyne', country:'Belgium', odds:'+10000'},
+  {name:'Nico Williams', country:'Spain', odds:'+10000'},
+  {name:'Nicolas Jackson', country:'Senegal', odds:'+10000'},
+  {name:'Omar Marmoush', country:'Egypt', odds:'+10000'},
+  {name:'Pedri', country:'Spain', odds:'+10000'},
+  {name:'Joao Felix', country:'Portugal', odds:'+10000'},
+  {name:'Martin Odegaard', country:'Norway', odds:'+15000'},
+  {name:'Chris Wood', country:'New Zealand', odds:'+15000'},
+  {name:'Ismaila Sarr', country:'Senegal', odds:'+15000'},
+  {name:'Salem Al-Dawsari', country:'Saudi Arabia', odds:'+17500'},
+  {name:'Musa Al-Taamari', country:'Jordan', odds:'+17500'},
+  {name:'Che Adams', country:'Scotland', odds:'+17500'},
+  {name:'Wilson Isidor', country:'Haiti', odds:'+17500'},
+  {name:'OTHER — Rest of field', country:'', odds:''},
+];
+
+const GOALIES = [
+  {name:'Alisson Becker', country:'Brazil'},
+  {name:'Thibaut Courtois', country:'Belgium'},
+  {name:'Emiliano Martínez', country:'Argentina'},
+  {name:'Unai Simon', country:'Spain'},
+  {name:'Mike Maignan', country:'France'},
+  {name:'Diogo Costa', country:'Portugal'},
+  {name:'Manuel Neuer', country:'Germany'},
+  {name:'Jordan Pickford', country:'England'},
+  {name:'David Raya', country:'Spain'},
+  {name:'Bart Verbruggen', country:'Netherlands'},
+  {name:'Ederson', country:'Brazil'},
+  {name:'Matt Freese', country:'USA'},
+  {name:'Yassine Bounou', country:'Morocco'},
+  {name:'Edouard Mendy', country:'Senegal'},
+  {name:'Raul Rangel', country:'Mexico'},
+  {name:'Orjon Nyland', country:'Norway'},
+  {name:'Camilo Vargas', country:'Colombia'},
+  {name:'Sergio Rochet', country:'Uruguay'},
+  {name:'Gregor Kobel', country:'Switzerland'},
+  {name:'Hernán Galíndez', country:'Ecuador'},
+  {name:'Dominik Livakovic', country:'Croatia'},
+  {name:'Matthew Ryan', country:'USA'},
+  {name:'Dayne St. Clair', country:'Canada'},
+  {name:'Kristoffer Nordfelt', country:'Sweden'},
+  {name:'Craig Gordon', country:'Scotland'},
+  {name:'OTHER — Rest of field', country:''},
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+const state = {
+  b1: new Set(), b2: new Set(), b3: new Set(), b4: new Set(),
+  striker: null, gk: null,
+};
+
+// ─── GOOGLE FORM CONFIG ─────────────────────────────────────────────────────
+// TODO: Replace with your actual Google Form action URL and entry IDs
+// How to find these: open your Google Form, click the 3-dot menu → Get pre-filled link,
+// fill in dummy values, copy the URL — each "entry.XXXXXXXXX" is your field ID.
+const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdFZzO7xuG99YaWELfZQISCVNvBLqh6evBaJ--5Xj5wLlfDew/formResponse';
+const FIELDS = {
+  name:    'entry.926946138',
+  email:   'entry.1136309782',
+  b1_1:    'entry.1293924228',
+  b1_2:    'entry.1806115637',
+  b2_1:    'entry.1277933256',
+  b2_2:    'entry.2072918527',
+  b2_3:    'entry.2089056617',
+  b3_1:    'entry.632117826',
+  b3_2:    'entry.2132854503',
+  b3_3:    'entry.1974032900',
+  b4_1:    'entry.298426322',
+  b4_2:    'entry.1594955342',
+  striker: 'entry.866325226',
+  gk:      'entry.171224296',
+};
+
+// ─── RENDER TEAMS ────────────────────────────────────────────────────────────
+function renderBand(bandData) {
+  const { id, max, teams } = bandData;
+  const grid = document.getElementById('grid-' + id);
+  grid.innerHTML = '';
+  teams.forEach((team, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'team-btn';
+    btn.type = 'button';
+    const sel = state[id];
+    if (sel.has(i)) btn.classList.add('selected');
+    if (!sel.has(i) && sel.size >= max) btn.classList.add('disabled');
+    btn.innerHTML = `
+      <span class="tname">${team.god ? '<span class="god-dot"></span>' : ''}${team.name}</span>
+      <span class="todds">${team.odds >= 250000 ? '+250,000' : '+' + team.odds.toLocaleString()}</span>`;
+    btn.onclick = () => toggleTeam(id, i, max);
+    grid.appendChild(btn);
+  });
+  updateCounter(id, max);
+  updateSummary();
+  updateProgress();
+}
+
+function toggleTeam(bandId, idx, max) {
+  const sel = state[bandId];
+  if (sel.has(idx)) { sel.delete(idx); }
+  else if (sel.size < max) { sel.add(idx); }
+  const band = BANDS.find(b => b.id === bandId);
+  renderBand(band);
+}
+
+function updateCounter(id, max) {
+  const sel = state[id];
+  const cnt = sel.size;
+  const dotsEl = document.getElementById('dots-' + id);
+  const statusEl = document.getElementById('status-' + id);
+  dotsEl.innerHTML = Array.from({length: max}, (_, i) => `<span class="dot ${i < cnt ? 'filled' : ''}"></span>`).join('');
+  statusEl.textContent = cnt === max ? `${cnt} of ${max} selected` : `${cnt} of ${max} selected`;
+  statusEl.className = 'pick-status' + (cnt === max ? ' complete' : '');
+}
+
+// ─── RENDER STRIKERS ─────────────────────────────────────────────────────────
+function renderStrikers(filter) {
+  const list = document.getElementById('list-striker');
+  list.innerHTML = '';
+  const q = (filter || '').toLowerCase();
+  STRIKERS.filter(p => !q || p.name.toLowerCase().includes(q) || p.country.toLowerCase().includes(q))
+    .forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'player-row' + (state.striker === p.name ? ' selected' : '');
+      if (state.striker && state.striker !== p.name) row.classList.add('disabled');
+      row.innerHTML = `
+        <div class="player-check">${state.striker === p.name ? '✓' : ''}</div>
+        <div class="player-info">
+          <div class="player-name">${p.name}</div>
+          ${p.country ? `<div class="player-country">${p.country}</div>` : ''}
+        </div>
+        <div class="player-odds">${p.odds}</div>`;
+      row.onclick = () => {
+        state.striker = state.striker === p.name ? null : p.name;
+        renderStrikers(document.getElementById('striker-search').value);
+        updateStrikerCounter();
+        updateSummary();
+        updateProgress();
+      };
+      list.appendChild(row);
+    });
+}
+
+function updateStrikerCounter() {
+  const has = !!state.striker;
+  document.getElementById('dots-striker').innerHTML = `<span class="dot ${has ? 'filled' : ''}"></span>`;
+  const s = document.getElementById('status-striker');
+  s.textContent = has ? '1 of 1 selected' : '0 of 1 selected';
+  s.className = 'pick-status' + (has ? ' complete' : '');
+}
+
+function filterPlayers(type) {
+  renderStrikers(document.getElementById('striker-search').value);
+}
+
+// ─── RENDER GOALIES ───────────────────────────────────────────────────────────
+function renderGoalies() {
+  const grid = document.getElementById('grid-goalies');
+  grid.innerHTML = '';
+  GOALIES.forEach((g, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'goalie-btn' + (state.gk === g.name ? ' selected' : '');
+    btn.innerHTML = `<span class="gname">${g.name}</span><span class="gcountry">${g.country}</span>`;
+    btn.onclick = () => {
+      state.gk = state.gk === g.name ? null : g.name;
+      renderGoalies();
+      updateGKCounter();
+      updateSummary();
+      updateProgress();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function updateGKCounter() {
+  const has = !!state.gk;
+  document.getElementById('dots-gk').innerHTML = `<span class="dot ${has ? 'filled' : ''}"></span>`;
+  const s = document.getElementById('status-gk');
+  s.textContent = has ? '1 of 1 selected' : '0 of 1 selected';
+  s.className = 'pick-status' + (has ? ' complete' : '');
+}
+
+// ─── SUMMARY ─────────────────────────────────────────────────────────────────
+function updateSummary() {
+  const slots = [];
+  const bandLabels = ['Band 1','Band 1','Band 2','Band 2','Band 2','Band 3','Band 3','Band 3','Band 4','Band 4'];
+  const bandIds = ['b1','b1','b2','b2','b2','b3','b3','b3','b4','b4'];
+
+  BANDS.forEach(band => {
+    const picks = [...state[band.id]].map(i => band.teams[i].name);
+    picks.forEach(p => slots.push({label: 'Team', value: p}));
+  });
+  while (slots.length < 10) slots.push({label: 'Team', value: null});
+  slots.push({label: 'Striker', value: state.striker});
+  slots.push({label: 'Goalkeeper', value: state.gk});
+
+  const grid = document.getElementById('summary-grid');
+  grid.innerHTML = slots.map(s => `
+    <div class="summary-chip ${s.value ? 'filled' : ''}">
+      <div class="chip-label">${s.label}</div>
+      <div>${s.value || 'Empty'}</div>
+    </div>`).join('');
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const total = state.b1.size + state.b2.size + state.b3.size + state.b4.size +
+    (state.striker ? 1 : 0) + (state.gk ? 1 : 0);
+  document.getElementById('prog-label').textContent = total + ' / 12 picks';
+  document.getElementById('prog-fill').style.width = Math.round((total / 12) * 100) + '%';
+}
+
+// ─── SUBMIT ───────────────────────────────────────────────────────────────────
+function submitForm() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const msg = document.getElementById('val-msg');
+
+  if (!name) { msg.textContent = 'Please enter your name.'; return; }
+  if (!email || !email.includes('@')) { msg.textContent = 'Please enter a valid email address.'; return; }
+  if (state.b1.size < 2) { msg.textContent = 'Please select 2 teams from Band 1.'; return; }
+  if (state.b2.size < 3) { msg.textContent = 'Please select 3 teams from Band 2.'; return; }
+  if (state.b3.size < 3) { msg.textContent = 'Please select 3 teams from Band 3.'; return; }
+  if (state.b4.size < 2) { msg.textContent = 'Please select 2 teams from Band 4.'; return; }
+  if (!state.striker) { msg.textContent = 'Please select your striker.'; return; }
+  if (!state.gk) { msg.textContent = 'Please select your goalkeeper.'; return; }
+  msg.textContent = '';
+
+  const b1picks = [...state.b1].map(i => BANDS[0].teams[i].name);
+  const b2picks = [...state.b2].map(i => BANDS[1].teams[i].name);
+  const b3picks = [...state.b3].map(i => BANDS[2].teams[i].name);
+  const b4picks = [...state.b4].map(i => BANDS[3].teams[i].name);
+
+  const params = new URLSearchParams({
+    [FIELDS.name]:    name,
+    [FIELDS.email]:   email,
+    [FIELDS.b1_1]:    b1picks[0] || '',
+    [FIELDS.b1_2]:    b1picks[1] || '',
+    [FIELDS.b2_1]:    b2picks[0] || '',
+    [FIELDS.b2_2]:    b2picks[1] || '',
+    [FIELDS.b2_3]:    b2picks[2] || '',
+    [FIELDS.b3_1]:    b3picks[0] || '',
+    [FIELDS.b3_2]:    b3picks[1] || '',
+    [FIELDS.b3_3]:    b3picks[2] || '',
+    [FIELDS.b4_1]:    b4picks[0] || '',
+    [FIELDS.b4_2]:    b4picks[1] || '',
+    [FIELDS.striker]: state.striker,
+    [FIELDS.gk]:      state.gk,
+  });
+
+  // Submit to Google Form via hidden iframe (avoids CORS redirect page)
+  let iframe = document.getElementById('submit-iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.name = 'submit-iframe';
+    iframe.id = 'submit-iframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+  }
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = FORM_ACTION;
+  form.target = 'submit-iframe';
+  form.style.display = 'none';
+  params.forEach((val, key) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = val;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  setTimeout(() => {
+    document.getElementById('main-form').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+  }, 800);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+BANDS.forEach(renderBand);
+renderStrikers();
+renderGoalies();
+updateSummary();
+updateProgress();
+</script>
+</body>
+</html>
