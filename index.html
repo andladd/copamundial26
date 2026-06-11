@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026 World Cup Pool — Draft Your Roster</title>
+<title>2026 World Cup Pool — Leaderboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ─── TOKENS ─── */
 :root {
   --pitch: #0a2a1a;
   --pitch-mid: #0f3d26;
@@ -37,12 +36,9 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
-
-/* ─── PITCH LINES BACKGROUND ─── */
 body::before {
   content: '';
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background-image:
     linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
@@ -50,1065 +46,700 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
-
-/* ─── HEADER ─── */
+nav {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.nav-link {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; text-decoration: none;
+  padding: 6px 16px; border-radius: var(--r);
+  border: 1px solid transparent; color: var(--muted); transition: all 0.15s;
+}
+.nav-link:hover { color: var(--white); border-color: var(--line); }
+.nav-link.active { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
 header {
-  position: relative;
-  text-align: center;
-  padding: 3.5rem 1.5rem 2.5rem;
-  z-index: 1;
+  position: relative; text-align: center;
+  padding: 3rem 1.5rem 2.5rem; z-index: 1;
   border-bottom: 1px solid var(--line);
 }
 header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px; left: 50%;
-  transform: translateX(-50%);
-  width: 80px; height: 2px;
-  background: var(--gold);
+  content: ''; position: absolute; bottom: -1px; left: 50%;
+  transform: translateX(-50%); width: 80px; height: 2px; background: var(--gold);
 }
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.5rem;
-}
-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3rem, 8vw, 6rem);
-  line-height: 0.9;
-  letter-spacing: 0.02em;
-  color: var(--white);
-}
+.eyebrow { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 7vw, 5rem); line-height: 0.9; letter-spacing: 0.02em; }
 h1 span { color: var(--gold); }
-.subtitle {
-  margin-top: 1rem;
-  font-size: 13px;
-  color: var(--muted);
-  max-width: 520px;
-  margin-inline: auto;
-  line-height: 1.7;
-}
-
-/* ─── LAYOUT ─── */
+.subtitle { margin-top: 1rem; font-size: 13px; color: var(--muted); max-width: 520px; margin-inline: auto; line-height: 1.8; }
 main {
-  position: relative;
-  z-index: 1;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
 }
-
-/* ─── PROGRESS BAR ─── */
-.progress-wrap {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(10,42,26,0.92);
-  backdrop-filter: blur(10px);
-  padding: 12px 1.5rem;
-  border-bottom: 1px solid var(--line);
-  margin: 0 -1.5rem;
+.section-heading {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem;
+  letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase;
+  margin-bottom: 0.75rem; padding-left: 2px;
 }
-.progress-inner { max-width: 860px; margin: 0 auto; }
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 7px;
-}
-.progress-label strong { color: var(--gold); }
-.progress-track {
-  height: 3px;
-  background: var(--line);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--gold);
-  border-radius: 2px;
-  transition: width 0.4s ease;
-  width: 0%;
-}
-
-/* ─── SECTION CARDS ─── */
 .card {
-  background: var(--pitch-mid);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
+  background: var(--pitch-mid); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
 }
 .card-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
+  padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--line);
+  display: flex; align-items: baseline; gap: 10px;
 }
-.card-header h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.5rem;
-  letter-spacing: 0.05em;
-  color: var(--white);
+.card-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.05em; }
+.card-header .sub { font-size: 12px; color: var(--muted); }
+
+/* ─── STATUS BAR ─── */
+.data-status {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 1.25rem; border-bottom: 1px solid var(--line);
+  font-size: 11px; color: var(--muted);
 }
-.card-header .rule {
-  font-size: 12px;
-  color: var(--muted);
+.status-left { display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+.status-dot.live  { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.status-dot.error { background: var(--danger); }
+.refresh-btn {
+  background: none; border: 1px solid var(--line); border-radius: 4px;
+  color: var(--muted); font-size: 10px; padding: 3px 9px; cursor: pointer;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.refresh-btn:hover:not(:disabled) { color: var(--white); border-color: rgba(255,255,255,0.25); }
+.refresh-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* ─── LEADERBOARD ─── */
+#leaderboard-wrap { grid-column: 1; grid-row: 1 / 3; }
+.leaderboard-scroll { max-height: 640px; overflow-y: auto; }
+.leaderboard-scroll::-webkit-scrollbar { width: 3px; }
+.leaderboard-scroll::-webkit-scrollbar-track { background: transparent; }
+.leaderboard-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+.lb-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 1.25rem; border-bottom: 1px solid var(--line);
+  cursor: pointer; transition: background 0.12s; user-select: none;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: rgba(255,255,255,0.04); }
+.lb-row.active { background: var(--gold-dim); }
+.lb-rank {
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem;
+  letter-spacing: 0.05em; color: var(--muted); width: 24px; text-align: center; flex-shrink: 0;
+}
+.lb-rank.r1 { color: #FFD700; }
+.lb-rank.r2 { color: #C0C0C0; }
+.lb-rank.r3 { color: #CD7F32; }
+.lb-row.active .lb-rank { color: var(--gold); }
+.lb-name { flex: 1; font-size: 14px; font-weight: 500; }
+.lb-row.active .lb-name { color: var(--gold); }
+.lb-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.05em; }
+.lb-row.active .lb-score { color: var(--gold); }
+.lb-pts { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ─── PICKS VIEWER ─── */
+#picks-wrap { grid-column: 2; grid-row: 1; }
+.picks-controls {
+  display: flex; align-items: center; gap: 10px;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--line);
+}
+.entrant-select {
+  flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 8px 12px; color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+}
+.entrant-select:focus { outline: none; border-color: var(--gold-border); }
+.entrant-select option { background: #0f3d26; }
+.clear-btn {
+  font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 7px 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.clear-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.25); }
+.picks-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.band-label {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px; font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
 }
 .band-tag {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 3px;
-  margin-left: auto;
+  display: inline-block; font-size: 10px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px;
 }
 .b1 { background: rgba(167,139,250,0.15); color: var(--band1); border: 1px solid rgba(167,139,250,0.3); }
-.b2 { background: rgba(96,165,250,0.15); color: var(--band2); border: 1px solid rgba(96,165,250,0.3); }
-.b3 { background: rgba(52,211,153,0.15); color: var(--band3); border: 1px solid rgba(52,211,153,0.3); }
+.b2 { background: rgba(96,165,250,0.15);  color: var(--band2); border: 1px solid rgba(96,165,250,0.3); }
+.b3 { background: rgba(52,211,153,0.15);  color: var(--band3); border: 1px solid rgba(52,211,153,0.3); }
 .b4 { background: rgba(156,163,175,0.15); color: var(--band4); border: 1px solid rgba(156,163,175,0.3); }
-
-/* ─── TEAM GRID ─── */
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
-  padding: 1.25rem 1.5rem;
+.pill-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 7px 10px; border-radius: 8px; width: 118px; min-height: 44px;
+  border: 1px solid rgba(92,184,122,0.2); background: rgba(92,184,122,0.05);
+  transition: all 0.2s; cursor: default; position: relative;
 }
-.team-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
+.pill span { font-size: 12px; font-weight: 500; color: rgba(245,242,234,0.45); line-height: 1.3; }
+.pill .pill-group { font-size: 10px; color: rgba(245,242,234,0.2); margin-top: 2px; letter-spacing: 0.05em; }
+.pill.selected-b1 { background: #26215C; border-color: var(--band1); }
+.pill.selected-b1 span { color: var(--band1); }
+.pill.selected-b1 .pill-group { color: rgba(167,139,250,0.6); }
+.pill.selected-b2 { background: #042C53; border-color: var(--band2); }
+.pill.selected-b2 span { color: var(--band2); }
+.pill.selected-b2 .pill-group { color: rgba(96,165,250,0.6); }
+.pill.selected-b3 { background: #0a2e1e; border-color: var(--band3); }
+.pill.selected-b3 span { color: var(--band3); }
+.pill.selected-b3 .pill-group { color: rgba(52,211,153,0.6); }
+.pill.selected-b4 { background: #1c1f23; border-color: var(--band4); }
+.pill.selected-b4 span { color: #e2e8f0; }
+.pill.selected-b4 .pill-group { color: rgba(156,163,175,0.6); }
+.pill-tooltip {
+  display: none; position: absolute; bottom: calc(100% + 7px); left: 50%;
+  transform: translateX(-50%); background: #051810;
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 7px;
+  padding: 9px 12px; width: 140px; z-index: 300;
+  pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,0.55); white-space: nowrap;
 }
-.team-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
-.team-btn.selected {
-  background: var(--gold-dim);
-  border-color: var(--gold);
+.pill-tooltip::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: rgba(255,255,255,0.18);
 }
-.team-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-.team-btn .tname { font-size: 13px; font-weight: 500; line-height: 1.3; }
-.team-btn .todds { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.team-btn.selected .tname { color: var(--gold); }
-.team-btn.selected .todds { color: rgba(232,200,74,0.6); }
-.team-btn { position: relative; }
-.team-btn.selected .todds { color: rgba(232,200,74,0.6); }
-
-/* ─── GROUP TOOLTIP ─── */
-.group-tooltip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #051810;
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 8px;
-  padding: 10px 13px;
-  width: 180px;
-  z-index: 200;
-  pointer-events: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+.pill-tooltip::before {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: #051810; z-index: 1;
 }
-.group-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%; left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: rgba(255,255,255,0.18);
+.tt-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.group-tooltip::before {
-  content: '';
-  position: absolute;
-  top: 100%; left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #051810;
-  z-index: 1;
+.tt-row:last-child { border-bottom: none; }
+.tt-label { color: var(--muted); }
+.tt-val { color: var(--white); font-weight: 500; }
+.tt-val.gold { color: var(--gold); }
+.pill:hover .pill-tooltip { display: block; }
+.player-cell { position: relative; cursor: default; }
+.player-tooltip {
+  display: none; position: absolute; top: calc(100% + 7px); left: 1.25rem;
+  background: #051810; border: 1px solid rgba(255,255,255,0.18); border-radius: 7px;
+  padding: 9px 12px; width: 160px; z-index: 300;
+  pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,0.55);
 }
-.tooltip-header {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 7px;
-  font-weight: 500;
+.player-tooltip::before {
+  content: ''; position: absolute; bottom: 100%; left: 20px;
+  border: 6px solid transparent; border-bottom-color: rgba(255,255,255,0.18);
 }
-.tooltip-team {
-  font-size: 12px;
-  color: var(--muted);
-  padding: 3px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.player-tooltip::after {
+  content: ''; position: absolute; bottom: 100%; left: 21px;
+  border: 5px solid transparent; border-bottom-color: #051810; z-index: 1;
 }
-.tooltip-team:last-child { border-bottom: none; }
-.tooltip-team.highlight { color: var(--white); font-weight: 500; }
-.team-btn:hover .group-tooltip { display: block; }
-
-/* ─── PICK COUNTER ─── */
-.pick-counter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 1.5rem;
-  background: rgba(0,0,0,0.2);
-  border-top: 1px solid var(--line);
-  font-size: 12px;
-  color: var(--muted);
+.player-cell:hover .player-tooltip { display: block; }
+#player-wrap { grid-column: 2; grid-row: 2; }
+.player-picks-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+.player-cell { background: var(--pitch-mid); padding: 1rem 1.25rem; }
+.player-cell-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+.player-name-display { font-size: 15px; font-weight: 500; color: var(--muted); transition: color 0.2s; }
+.player-name-display.set { color: var(--white); }
+.player-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.state-msg { text-align: center; padding: 3rem 1.5rem; font-size: 13px; color: var(--muted); }
+.spinner {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--line); border-top-color: var(--gold);
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
 }
-.counter-dots { display: flex; gap: 5px; }
-.dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: transparent;
-  transition: all 0.2s;
-}
-.dot.filled { background: var(--gold); border-color: var(--gold); }
-.dot.over { background: var(--danger); border-color: var(--danger); }
-.pick-status { margin-left: auto; font-weight: 500; }
-.pick-status.complete { color: var(--success); }
-.pick-status.over { color: var(--danger); }
-.odds-counter {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  background: rgba(0,0,0,0.2);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 2px 8px;
-  transition: all 0.2s;
-}
-.odds-counter.met { color: var(--success); border-color: rgba(92,184,122,0.3); background: rgba(92,184,122,0.08); }
-.odds-counter.unmet { color: var(--danger); border-color: rgba(224,92,74,0.3); background: rgba(224,92,74,0.08); }
-
-/* ─── PLAYER LIST ─── */
-.player-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
-  max-height: 380px;
-  overflow-y: auto;
-}
-.player-list::-webkit-scrollbar { width: 4px; }
-.player-list::-webkit-scrollbar-track { background: transparent; }
-.player-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-.player-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 1.5rem;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-  transition: background 0.12s;
-}
-.player-row:last-child { border-bottom: none; }
-.player-row:hover { background: rgba(255,255,255,0.04); }
-.player-row.selected { background: var(--gold-dim); }
-.player-check {
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.15s;
-  font-size: 10px;
-}
-.player-row.selected .player-check {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--pitch);
-}
-.player-info { flex: 1; }
-.player-name { font-size: 13px; font-weight: 500; }
-.player-country { font-size: 11px; color: var(--muted); }
-.player-odds { font-size: 12px; color: var(--muted); margin-left: auto; }
-.player-row.selected .player-name { color: var(--gold); }
-.player-row.selected .player-odds { color: rgba(232,200,74,0.7); }
-.player-row.disabled { opacity: 0.3; pointer-events: none; }
-
-/* ─── PLAYER SEARCH ─── */
-.player-search-wrap { padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); }
-.player-search {
-  width: 100%;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 9px 14px;
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-}
-.player-search::placeholder { color: var(--muted); }
-.player-search:focus { outline: none; border-color: var(--gold-border); }
-
-/* ─── TEXT INPUTS ─── */
-.field-group { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; }
-.field-label {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.field-input {
-  width: 100%;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 11px 14px;
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-}
-.field-input:focus { outline: none; border-color: var(--gold-border); background: rgba(0,0,0,0.4); }
-.field-input::placeholder { color: rgba(245,242,234,0.2); }
-
-/* ─── GOALIE SECTION ─── */
-.goalie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
-  padding: 1.25rem 1.5rem;
-}
-.goalie-btn {
-  display: flex;
-  flex-direction: column;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: left;
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-}
-.goalie-btn:hover { background: rgba(255,255,255,0.08); }
-.goalie-btn.selected { background: var(--gold-dim); border-color: var(--gold); }
-.goalie-btn .gname { font-size: 13px; font-weight: 500; }
-.goalie-btn .gcountry { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.goalie-btn.selected .gname { color: var(--gold); }
-
-/* ─── ROSTER SUMMARY ─── */
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
-  padding: 1.5rem;
-}
-.summary-chip {
-  padding: 8px 12px;
-  border-radius: var(--r);
-  font-size: 12px;
-  border: 1px dashed rgba(255,255,255,0.12);
-  color: rgba(245,242,234,0.3);
-}
-.summary-chip.filled {
-  border-style: solid;
-  border-color: var(--gold-border);
-  color: var(--white);
-  background: var(--gold-dim);
-}
-.summary-chip .chip-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 2px; }
-.summary-chip.filled .chip-label { color: rgba(232,200,74,0.6); }
-
-/* ─── SUBMIT ─── */
-.submit-section { text-align: center; padding: 0 1.5rem; }
-.validation-msg {
-  font-size: 13px;
-  color: var(--danger);
-  margin-bottom: 1rem;
-  min-height: 20px;
-}
-.submit-btn {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.4rem;
-  letter-spacing: 0.1em;
-  color: var(--pitch);
-  background: var(--gold);
-  border: none;
-  border-radius: var(--r);
-  padding: 16px 48px;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: 100%;
-  max-width: 360px;
-}
-.submit-btn:hover { background: #f5d86b; transform: translateY(-1px); }
-.submit-btn:active { transform: translateY(0); }
-.submit-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-.submit-note { font-size: 11px; color: var(--muted); margin-top: 10px; }
-
-/* ─── SUCCESS ─── */
-#success-screen {
-  display: none;
-  text-align: center;
-  padding: 4rem 1.5rem;
-}
-#success-screen h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 3rem;
-  color: var(--gold);
-  margin-bottom: 1rem;
-}
-#success-screen p { color: var(--muted); font-size: 14px; line-height: 1.7; max-width: 400px; margin: 0 auto; }
-
-/* ─── SECTION DIVIDER ─── */
-.section-note {
-  font-size: 12px;
-  color: var(--muted);
-  padding: 8px 1.5rem 12px;
-  border-bottom: 1px solid var(--line);
-  line-height: 1.6;
-}
-
-/* ─── GOD LEGEND ─── */
-.god-legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--muted);
-  padding: 8px 1.5rem;
-  background: rgba(249,115,22,0.05);
-  border-bottom: 1px solid var(--line);
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 700px) {
+  main { grid-template-columns: 1fr; grid-template-rows: auto; }
+  #leaderboard-wrap { grid-column: 1; grid-row: 1; }
+  #picks-wrap { grid-column: 1; grid-row: 2; }
+  #player-wrap { grid-column: 1; grid-row: 3; }
+  .leaderboard-scroll { max-height: 320px; }
 }
 </style>
 </head>
 <body>
 
-<nav style="position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:4px;padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.12);">
-  <a href="rules.html" style="font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:6px 16px;border-radius:6px;border:1px solid transparent;color:rgba(245,242,234,0.45);transition:all 0.15s;" onmouseover="this.style.color='#f5f2ea';this.style.borderColor='rgba(255,255,255,0.12)'" onmouseout="this.style.color='rgba(245,242,234,0.45)';this.style.borderColor='transparent'">Scoring Rules</a>
-  <a href="index.html" style="font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:6px 16px;border-radius:6px;border:1px solid rgba(232,200,74,0.35);background:rgba(232,200,74,0.15);color:#e8c84a;">Draft Your Roster</a>
+<nav>
+  <a href="rules.html" class="nav-link">Scoring Rules</a>
+  <a href="leaderboard.html" class="nav-link active">Leaderboard</a>
 </nav>
 
 <header>
   <p class="eyebrow">The 2026 World Cup Pool</p>
-  <h1>Draft Your<br><span>Roster</span></h1>
-  <p class="subtitle">Pick 3 from Band 1, 3 from Band 2, 3 from Band 3, & 2 from Band 4, plus your striker and goalkeeper. 13 scoring selections total. Selections from Bands 1 & 2 must exceed the odds threshold.</p>
- <p style="margin-top:1.25rem;font-size:13px;color:var(--gold);letter-spacing:0.05em;">$20 buy-in &nbsp;·&nbsp; Single entry per person &nbsp;·&nbsp; Venmo <strong>@andladd</strong> <br>Payout for the top 3-5 based on number of entries.</p>
+  <h1>Leader<span>board</span></h1>
+  <p class="subtitle">Click any name to highlight their picks. Scores update live from the pool sheet.</p>
 </header>
 
-<main id="main-form">
+<main>
 
-  <!-- PROGRESS -->
-  <div class="progress-wrap">
-    <div class="progress-inner">
-      <div class="progress-label">
-        <span>Roster complete</span>
-        <strong id="prog-label">0 / 12 picks</strong>
+  <div id="leaderboard-wrap">
+    <div class="section-heading">Standings</div>
+    <div class="card">
+      <div class="card-header">
+        <h2>Rankings</h2>
+        <span class="sub" id="entry-count">— entries</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
-    </div>
-  </div>
-
-  <!-- PARTICIPANT INFO -->
-  <div class="card">
-    <div class="card-header">
-      <h2>Your Info</h2>
-    </div>
-    <div class="field-group">
-      <div>
-        <div class="field-label">Full name</div>
-        <input class="field-input" type="text" id="f-name" placeholder="Andrew Ladd" autocomplete="name">
+      <div class="data-status">
+        <div class="status-left">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">Loading scores…</span>
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="refreshData()" disabled>Refresh</button>
       </div>
-      <div>
-        <div class="field-label">Email address</div>
-        <input class="field-input" type="email" id="f-email" placeholder="you@example.com" autocomplete="email">
+      <div class="leaderboard-scroll" id="leaderboard-list">
+        <div class="state-msg"><div class="spinner"></div>Loading…</div>
       </div>
     </div>
   </div>
 
-  <!-- BAND 1 -->
-  <div class="card" id="card-b1">
-    <div class="card-header">
-      <h2>Band 1</h2>
-      <span class="card-header rule">Pick 3 of 8</span>
-      <span class="band-tag b1">Favorites</span>
-    </div>
-    <div class="team-grid" id="grid-b1"></div>
-    <div class="pick-counter">
-      <div class="counter-dots" id="dots-b1"></div>
-      <span class="odds-counter" id="odds-b1">Odds: +0 / min +2,000</span>
-      <span class="pick-status" id="status-b1">0 of 3 selected</span>
-    </div>
-  </div>
-
-  <!-- BAND 2 -->
-  <div class="card" id="card-b2">
-    <div class="card-header">
-      <h2>Band 2</h2>
-      <span class="card-header rule">Pick 3 of 12</span>
-      <span class="band-tag b2">Contenders</span>
-    </div>
-    <div class="team-grid" id="grid-b2"></div>
-    <div class="pick-counter">
-      <div class="counter-dots" id="dots-b2"></div>
-      <span class="odds-counter" id="odds-b2">Odds: +0 / min +10,000</span>
-      <span class="pick-status" id="status-b2">0 of 3 selected</span>
-    </div>
-  </div>
-
-  <!-- BAND 3 -->
-  <div class="card" id="card-b3">
-    <div class="card-header">
-      <h2>Band 3</h2>
-      <span class="card-header rule">Pick 3 of 15</span>
-      <span class="band-tag b3">Longshots</span>
-    </div>
-    <div class="team-grid" id="grid-b3"></div>
-    <div class="pick-counter">
-      <div class="counter-dots" id="dots-b3"></div>
-      <span class="pick-status" id="status-b3">0 of 3 selected</span>
+  <div id="picks-wrap">
+    <div class="section-heading">Roster Explorer</div>
+    <div class="card">
+      <div class="picks-controls">
+        <select class="entrant-select" id="entrant-select" onchange="selectEntrant(this.value)">
+          <option value="">— Select an entrant —</option>
+        </select>
+        <button class="clear-btn" onclick="clearSelection()">Clear</button>
+      </div>
+      <div class="picks-body" id="picks-body">
+        <div class="state-msg" id="picks-placeholder" style="padding:2rem 1.5rem;">Select an entrant or click a name in the leaderboard to highlight their picks.</div>
+        <div class="band-section" id="band-b1" style="display:none">
+          <div class="band-label"><span class="band-tag b1">Band 1</span><span style="color:var(--muted);font-size:11px">Favorites</span></div>
+          <div class="pill-grid" id="pills-b1"></div>
+        </div>
+        <div class="band-section" id="band-b2" style="display:none">
+          <div class="band-label"><span class="band-tag b2">Band 2</span><span style="color:var(--muted);font-size:11px">Contenders</span></div>
+          <div class="pill-grid" id="pills-b2"></div>
+        </div>
+        <div class="band-section" id="band-b3" style="display:none">
+          <div class="band-label"><span class="band-tag b3">Band 3</span><span style="color:var(--muted);font-size:11px">Longshots</span></div>
+          <div class="pill-grid" id="pills-b3"></div>
+        </div>
+        <div class="band-section" id="band-b4" style="display:none">
+          <div class="band-label"><span class="band-tag b4">Band 4</span><span style="color:var(--muted);font-size:11px">Wildcards</span></div>
+          <div class="pill-grid" id="pills-b4"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- BAND 4 -->
-  <div class="card" id="card-b4">
-    <div class="card-header">
-      <h2>Band 4</h2>
-      <span class="card-header rule">Pick 2 of 13</span>
-      <span class="band-tag b4">Wildcards</span>
+  <div id="player-wrap">
+    <div class="section-heading">Player Picks</div>
+    <div class="card">
+      <div class="player-picks-row">
+        <div class="player-cell">
+          <div class="player-cell-label">⚽ Striker — Golden Boot</div>
+          <div class="player-name-display" id="display-striker">—</div>
+          <div class="player-sub" id="display-striker-sub"></div>
+        </div>
+        <div class="player-cell">
+          <div class="player-cell-label">🧤 Goalkeeper — Golden Glove</div>
+          <div class="player-name-display" id="display-gk">—</div>
+          <div class="player-sub" id="display-gk-sub"></div>
+        </div>
+      </div>
     </div>
-    <div class="section-note">Any Band 4 team that wins a knockout game earns you +3 bonus points per win.</div>
-    <div class="team-grid" id="grid-b4"></div>
-    <div class="pick-counter">
-      <div class="counter-dots" id="dots-b4"></div>
-      <span class="pick-status" id="status-b4">0 of 2 selected</span>
-    </div>
-  </div>
-
-  <!-- STRIKER PICK -->
-  <div class="card">
-    <div class="card-header">
-      <h2>Your Striker</h2>
-      <span class="card-header rule">Pick 1 — Golden Boot contender</span>
-    </div>
-    <div class="section-note">+2 pts per goal scored. +10 pts if they win the Golden Boot.</div>
-    <div class="player-search-wrap">
-      <input class="player-search" type="text" id="striker-search" placeholder="Search by name or country…" oninput="filterPlayers('striker')">
-    </div>
-    <div class="player-list" id="list-striker"></div>
-    <div class="pick-counter">
-      <div class="counter-dots" id="dots-striker"></div>
-      <span class="pick-status" id="status-striker">0 of 1 selected</span>
-    </div>
-  </div>
-
-  <!-- GOALKEEPER PICK -->
-  <div class="card">
-    <div class="card-header">
-      <h2>Your Goalkeeper</h2>
-      <span class="card-header rule">Pick 1 — Golden Glove contender</span>
-    </div>
-    <div class="section-note">+2 pts per clean sheet. +10 pts if they win the Golden Glove.</div>
-    <div class="goalie-grid" id="grid-goalies"></div>
-    <div class="pick-counter">
-      <div class="counter-dots" id="dots-gk"></div>
-      <span class="pick-status" id="status-gk">0 of 1 selected</span>
-    </div>
-  </div>
-
-  <!-- ROSTER SUMMARY -->
-  <div class="card">
-    <div class="card-header"><h2>Your Roster</h2></div>
-    <div class="summary-grid" id="summary-grid"></div>
-  </div>
-
-  <!-- SUBMIT -->
-  <div class="submit-section">
-    <div class="validation-msg" id="val-msg"></div>
-    <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit My Picks</button>
-    <p class="submit-note">Your picks will be saved to the pool spreadsheet.</p>
   </div>
 
 </main>
 
-<!-- SUCCESS -->
-<div id="success-screen">
-  <h2>You're In.</h2>
-  <p>Your roster has been submitted. Good luck — may your longshots cause chaos and your Band 1 picks remember they're supposed to be good.</p>
-</div>
-
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// SHEET CONFIG
+// Sheet ID is from the URL: /spreadsheets/d/{SHEET_ID}/edit
+// GIDs are the numeric fragment after #gid= when you click each tab.
+//
+// HOW TO FIND GIDs:
+//   1. Open the sheet
+//   2. Click the "Scores" tab → copy the number after #gid= in the URL bar
+//   3. Repeat for Team_Scoring and Player_Scoring tabs
+//   4. Paste them below
+//
+// HOW TO PUBLISH:
+//   Just share as "Anyone with the link can view" — no "Publish to web" needed.
+//   The gviz endpoint handles CORS for any publicly shared sheet.
+// ─────────────────────────────────────────────────────────────────────────────
+const SHEET_ID = '1lYFSVVZAxDFHjLXDkyvtMQ_IMnDh4YPWV9G9DaNUUVg';
+
+// ↓↓↓ FILL THESE IN from your sheet's tab URLs ↓↓↓
+const GID_SCORES       = '241689656';  // Scores tab gid
+const GID_TEAM_SCORING = '73084039';  // Team_Scoring tab gid
+const GID_PLAYER       = '201098823';  // Player_Scoring tab gid
+
+function csvUrl(gid) {
+  // gviz endpoint supports CORS for publicly shared sheets (no sign-in required).
+  // Requires the sheet to be shared as "Anyone with the link can view".
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+}
+
+// ─── ENTRANTS (all 35) ────────────────────────────────────────────────────────
+const ENTRANTS = [
+  { name:'Galen Harnden',              b1:['Spain','England','Portugal'],       b2:['USA','Colombia','Morocco'],         b3:['Canada','Senegal','Austria'],          b4:['Uzbekistan','Panama'],        striker:'Harry Kane',          gk:'Mike Maignan' },
+  { name:'Josh Terry',                 b1:['France','Argentina','England'],      b2:['Japan','Belgium','Morocco'],        b3:['Senegal','South Korea','Algeria'],     b4:['Panama','Australia'],         striker:'Harry Kane',           gk:'Unai Simon' },
+  { name:'Carla',                      b1:['Portugal','France','England'],       b2:['Morocco','Belgium','Norway'],       b3:['Iran','Senegal','Austria'],            b4:['Australia','Iraq'],           striker:'Michael Olise',        gk:'Diogo Costa' },
+  { name:'Joey Clarke, Jr.',           b1:['France','Spain','Netherlands'],      b2:['Belgium','Colombia','Mexico'],      b3:['South Korea','Canada','Egypt'],        b4:['Australia','DR Congo'],       striker:'Vinicius Junior',      gk:'Thibaut Courtois' },
+  { name:'Andrew Ladd',                b1:['Spain','Brazil','Portugal'],         b2:['Ecuador','Japan','Morocco'],        b3:['Senegal','Egypt','Canada'],            b4:['Qatar','Curacao'],            striker:'Ferran Torres',        gk:'Oliver Baumann' },
+  { name:'Patrick McHale',             b1:['Spain','France','Germany'],          b2:['Belgium','Japan','Mexico'],         b3:['Paraguay','Czechia','Senegal'],        b4:['Panama','New Zealand'],       striker:'Kylian Mbappe',        gk:'Unai Simon' },
+  { name:'Ian Patterson',              b1:['England','Germany','Spain'],         b2:['Norway','Morocco','Ecuador'],       b3:['Senegal','Ivory Coast','Egypt'],       b4:['Saudi Arabia','Curacao'],     striker:'Michael Olise',        gk:'Unai Simon' },
+  { name:'Veshal Malhotra',            b1:['Spain','France','Germany'],          b2:['Norway','USA','Mexico'],            b3:['Canada','Sweden','Paraguay'],          b4:['Cape Verde','Curacao'],       striker:'Kylian Mbappe',        gk:'Unai Simon' },
+  { name:'Jeffrey Oudsema',            b1:['Argentina','France','Germany'],      b2:['Belgium','USA','Croatia'],          b3:['Senegal','Sweden','Paraguay'],         b4:['Jordan','Iraq'],              striker:'Erling Haaland',       gk:'Emiliano Martínez' },
+  { name:'Matthew Murch',              b1:['Spain','Brazil','Argentina'],        b2:['Norway','USA','Belgium'],           b3:['Senegal','Ivory Coast','Canada'],      b4:['Curacao','Panama'],           striker:'Lionel Messi',         gk:'Alisson Becker' },
+  { name:'Luke Koontz',                b1:['France','Spain','Netherlands'],      b2:['Belgium','Colombia','Mexico'],      b3:['Canada','Paraguay','Egypt'],           b4:['Cape Verde','Uzbekistan'],    striker:'Kylian Mbappe',        gk:'David Raya' },
+  { name:'Aditya Naik',                b1:['Spain','France','Germany'],          b2:['Mexico','Belgium','USA'],           b3:['Ivory Coast','Austria','Senegal'],     b4:['Panama','Australia'],         striker:'Kylian Mbappe',        gk:'Emiliano Martínez' },
+  { name:'John W Baker',               b1:['France','Brazil','Germany'],         b2:['Belgium','Colombia','Mexico'],      b3:['Austria','Senegal','Canada'],          b4:['Australia','New Zealand'],    striker:'Kylian Mbappe',        gk:'Oliver Baumann' },
+  { name:'Chris Grubb',                b1:['Argentina','Germany','Portugal'],    b2:['Japan','Norway','Morocco'],         b3:['Austria','Senegal','South Korea'],     b4:['Australia','Uzbekistan'],     striker:'Kylian Mbappe',        gk:'Mike Maignan' },
+  { name:'Ian Foster',                 b1:['Netherlands','Spain','Argentina'],   b2:['Belgium','Norway','USA'],           b3:['Sweden','Canada','Ivory Coast'],       b4:['Australia','Cape Verde'],     striker:'Mikel Oyarzabal',      gk:'Thibaut Courtois' },
+  { name:'Craig Ladd',                 b1:['Brazil','England','Argentina'],      b2:['USA','Ecuador','Mexico'],           b3:['Austria','Ghana','Algeria'],           b4:['Australia','South Africa'],   striker:'Christian Pulisic',    gk:'Raul Rangel' },
+  { name:'Paul Ladd',                  b1:['France','Spain','Netherlands'],      b2:['USA','Mexico','Ecuador'],           b3:['Algeria','Egypt','Austria'],           b4:['DR Congo','Australia'],       striker:'Kylian Mbappe',        gk:'Matt Reese' },
+  { name:'Elliott Liddle',             b1:['Germany','France','England'],        b2:['Belgium','Japan','Colombia'],       b3:['Sweden','Senegal','Paraguay'],         b4:['Australia','Panama'],         striker:'Harry Kane',            gk:'Thibaut Courtois' },
+  { name:'Mark Graham',                b1:['Portugal','Brazil','Argentina'],     b2:['USA','Ecuador','Belgium'],          b3:['South Korea','Scotland','Senegal'],    b4:['Cape Verde','Qatar'],         striker:'Kylian Mbappe',        gk:'Manuel Neuer' },
+  { name:'Jeffrey Dirrenberger',       b1:['England','Spain','Argentina'],       b2:['USA','Colombia','Norway'],          b3:['Scotland','Canada','South Korea'],     b4:['Qatar','Australia'],          striker:'Harry Kane',            gk:'Unai Simon' },
+  { name:'Melissa Liddle',             b1:['England','Argentina','France'],      b2:['Mexico','Japan','Belgium'],         b3:['Sweden','Czechia','Egypt'],            b4:['New Zealand','Australia'],    striker:'Kylian Mbappe',        gk:'Alisson Becker' },
+  { name:'Blake Payne',                b1:['France','England','Portugal'],       b2:['Belgium','Norway','Uruguay'],       b3:['Senegal','Austria','Canada'],          b4:['Australia','Qatar'],          striker:'Kylian Mbappe',        gk:'Thibaut Courtois' },
+  { name:'Matt Daly',                  b1:['Germany','Spain','France'],          b2:['Türkiye','Norway','Belgium'],       b3:['Ivory Coast','Canada','Egypt'],        b4:['South Africa','Australia'],   striker:'Kylian Mbappe',        gk:'David Raya' },
+  { name:'Noel Hopkins',               b1:['England','Argentina','France'],      b2:['Croatia','Belgium','Norway'],       b3:['Sweden','Austria','Senegal'],          b4:['Australia','New Zealand'],    striker:'Erling Haaland',       gk:'Jordan Pickford' },
+  { name:'Clark Kirkman',              b1:['England','Spain','Netherlands'],     b2:['USA','Norway','Mexico'],            b3:['Scotland','Ivory Coast','Iran'],       b4:['New Zealand','Curacao'],      striker:'Erling Haaland',       gk:'Unai Simon' },
+  { name:'Chris Ladd',                 b1:['France','Argentina','England'],      b2:['USA','Belgium','Colombia'],         b3:['Scotland','Senegal','Canada'],         b4:['New Zealand','South Africa'], striker:'Kylian Mbappe',        gk:'Alisson Becker' },
+  { name:'Liam Trimble',               b1:['Spain','Portugal','England'],        b2:['Norway','Morocco','Belgium'],       b3:['Ivory Coast','Austria','Canada'],      b4:['Panama','Uzbekistan'],        striker:'Harry Kane',            gk:'Unai Simon' },
+  { name:'Juan Pablo Román-Lagunaso',  b1:['France','Argentina','Netherlands'],  b2:['Japan','Türkiye','Norway'],         b3:['Canada','Sweden','Ivory Coast'],       b4:['Panama','South Africa'],      striker:'Kylian Mbappe',        gk:'Emiliano Martínez' },
+  { name:'Dave Trimble',               b1:['France','Spain','Germany'],          b2:['Norway','Mexico','Belgium'],        b3:['Austria','Canada','Paraguay'],         b4:['Qatar','Uzbekistan'],         striker:'Harry Kane',            gk:'Emiliano Martínez' },
+  { name:'Chris Horger',               b1:['Brazil','Argentina','Spain'],        b2:['Norway','Belgium','USA'],           b3:['Senegal','Austria','Canada'],          b4:['Haiti','Uzbekistan'],         striker:'Erling Haaland',       gk:'Unai Simon' },
+  { name:'Adam Majka',                 b1:['France','Brazil','Germany'],         b2:['Croatia','Switzerland','Belgium'],  b3:['Sweden','Canada','Scotland'],          b4:['South Africa','Australia'],   striker:'Ousmane Dembele',      gk:'Jordan Pickford' },
+  { name:'Brad Rittenhouse',           b1:['France','Argentina','Portugal'],     b2:['Norway','USA','Mexico'],            b3:['Sweden','Austria','Ghana'],            b4:['Panama','South Africa'],      striker:'Kylian Mbappe',        gk:'David Raya' },
+  { name:'Sean Murphy',                b1:['France','Spain','Germany'],          b2:['Belgium','Japan','Colombia'],       b3:['Senegal','Canada','Ivory Coast'],      b4:['Cape Verde','Australia'],     striker:'Lamine Yamal',         gk:'Thibaut Courtois' },
+  { name:'Colin Derhammer',            b1:['France','Spain','Germany'],          b2:['Norway','Colombia','Japan'],        b3:['Canada','Egypt','South Korea'],        b4:['New Zealand','DR Congo'],     striker:'Lamine Yamal',         gk:'Emiliano Martínez' },
+  { name:'Pat Collins',                b1:['Brazil','France','Argentina'],       b2:['USA','Ecuador','Belgium'],          b3:['Senegal','Scotland','Ivory Coast'],    b4:['Panama','Australia'],         striker:'Harry Kane',            gk:'Alisson Becker' },
+];
 
 const GROUP_MAP = {
-  A: ['Mexico','South Africa','South Korea','Czechia'],
-  B: ['Canada','Bosnia & Herz.','Qatar','Switzerland'],
-  C: ['Brazil','Morocco','Haiti','Scotland'],
-  D: ['United States','Paraguay','Australia','Türkiye'],
-  E: ['Germany','Curacao','Ivory Coast','Ecuador'],
-  F: ['Netherlands','Japan','Sweden','Tunisia'],
-  G: ['Belgium','Egypt','Iran','New Zealand'],
-  H: ['Spain','Cape Verde','Saudi Arabia','Uruguay'],
-  I: ['France','Senegal','Iraq','Norway'],
-  J: ['Argentina','Algeria','Austria','Jordan'],
-  K: ['Portugal','DR Congo','Uzbekistan','Colombia'],
-  L: ['England','Croatia','Ghana','Panama'],
+  'France':'I','Spain':'H','England':'L','Brazil':'C','Portugal':'K','Argentina':'J',
+  'Germany':'E','Netherlands':'F',
+  'Belgium':'G','Norway':'I','Colombia':'K','Japan':'F','Morocco':'C','USA':'D',
+  'Uruguay':'H','Mexico':'A','Türkiye':'D','Switzerland':'B','Croatia':'L','Ecuador':'E',
+  'Senegal':'I','Austria':'J','Canada':'B','Sweden':'F','Ivory Coast':'E','Scotland':'C',
+  'Paraguay':'D','Algeria':'J','Egypt':'G','Ghana':'L','Czechia':'A','South Korea':'A',
+  'Iran':'G','Bosnia & Herz.':'B','Tunisia':'F',
+  'Cape Verde':'H','Uzbekistan':'K','Curacao':'E','Panama':'L','Haiti':'C',
+  'Australia':'D','Qatar':'B','Saudi Arabia':'H','Iraq':'I','Jordan':'J',
+  'New Zealand':'G','DR Congo':'K','South Africa':'A',
 };
 
-const BANDS = [
-  { id: 'b1', max: 3, floor: 2000, teams: [
-    {name:'France',      odds:470,  group:'I', god:true},
-    {name:'Spain',       odds:480,  group:'H', god:true},
-    {name:'England',     odds:650,  group:'L', god:false},
-    {name:'Brazil',      odds:800,  group:'C', god:true},
-    {name:'Portugal',    odds:950,  group:'K', god:true},
-    {name:'Argentina',   odds:950,  group:'J', god:false},
-    {name:'Germany',     odds:1300, group:'E', god:false},
-    {name:'Netherlands', odds:1600, group:'F', god:false},
-  ]},
-  { id: 'b2', max: 3, floor: 10000, teams: [
-    {name:'Belgium',     odds:2200, group:'G', god:false},
-    {name:'Norway',      odds:3000, group:'I', god:true},
-    {name:'Colombia',    odds:3500, group:'K', god:true},
-    {name:'Japan',       odds:4500, group:'F', god:false},
-    {name:'Morocco',     odds:5000, group:'C', god:true},
-    {name:'USA',         odds:5500, group:'D', god:false},
-    {name:'Uruguay',     odds:5500, group:'H', god:true},
-    {name:'Mexico',      odds:6000, group:'A', god:false},
-    {name:'Türkiye',     odds:7000, group:'D', god:false},
-    {name:'Switzerland', odds:7000, group:'B', god:false},
-    {name:'Croatia',     odds:7500, group:'L', god:false},
-    {name:'Ecuador',     odds:8000, group:'E', god:false},
-  ]},
-  { id: 'b3', max: 3, floor: null, teams: [
-    {name:'Senegal',       odds:12500,  group:'I', god:true},
-    {name:'Austria',       odds:12500,  group:'J', god:false},
-    {name:'Canada',        odds:15000,  group:'B', god:false},
-    {name:'Sweden',        odds:17500,  group:'F', god:false},
-    {name:'Ivory Coast',   odds:17500,  group:'E', god:false},
-    {name:'Scotland',      odds:17500,  group:'C', god:true},
-    {name:'Paraguay',      odds:20000,  group:'D', god:false},
-    {name:'Algeria',       odds:25000,  group:'J', god:false},
-    {name:'Egypt',         odds:35000,  group:'G', god:false},
-    {name:'Ghana',         odds:35000,  group:'L', god:false},
-    {name:'Czechia',       odds:50000,  group:'A', god:false},
-    {name:'South Korea',   odds:60000,  group:'A', god:false},
-    {name:'Iran',          odds:75000,  group:'G', god:false},
-    {name:'Bosnia & Herz.',odds:75000,  group:'B', god:false},
-    {name:'Tunisia',       odds:100000, group:'F', god:false},
-  ]},
-  { id: 'b4', max: 2, floor: null, teams: [
-    {name:'Cape Verde',    odds:250000, group:'H', god:true},
-    {name:'Uzbekistan',    odds:250000, group:'K', god:true},
-    {name:'Curacao',       odds:250000, group:'E', god:false},
-    {name:'Panama',        odds:250000, group:'L', god:false},
-    {name:'Haiti',         odds:250000, group:'C', god:true},
-    {name:'Australia',     odds:250000, group:'D', god:false},
-    {name:'Qatar',         odds:250000, group:'B', god:false},
-    {name:'Saudi Arabia',  odds:250000, group:'H', god:true},
-    {name:'Iraq',          odds:250000, group:'I', god:true},
-    {name:'Jordan',        odds:250000, group:'J', god:false},
-    {name:'New Zealand',   odds:250000, group:'G', god:false},
-    {name:'DR Congo',      odds:250000, group:'K', god:true},
-    {name:'South Africa',  odds:250000, group:'A', god:false},
-  ]},
-];
-
-const STRIKERS = [
-  {name:'Kylian Mbappe', country:'France', odds:'+600'},
-  {name:'Harry Kane', country:'England', odds:'+700'},
-  {name:'Erling Haaland', country:'Norway', odds:'+1400'},
-  {name:'Mikel Oyarzabal', country:'Spain', odds:'+1400'},
-  {name:'Lionel Messi', country:'Argentina', odds:'+1600'},
-  {name:'Lamine Yamal', country:'Spain', odds:'+2000'},
-  {name:'Cristiano Ronaldo', country:'Portugal', odds:'+2200'},
-  {name:'Julian Alvarez', country:'Argentina', odds:'+3000'},
-  {name:'Raphinha', country:'Brazil', odds:'+3000'},
-  {name:'Lautaro Martinez', country:'Argentina', odds:'+3000'},
-  {name:'Vinicius Junior', country:'Brazil', odds:'+3000'},
-  {name:'Ousmane Dembele', country:'France', odds:'+3000'},
-  {name:'Igor Thiago', country:'Brazil', odds:'+3300'},
-  {name:'Romelu Lukaku', country:'Belgium', odds:'+3500'},
-  {name:'Kai Havertz', country:'Germany', odds:'+3500'},
-  {name:'Florian Wirtz', country:'Germany', odds:'+4000'},
-  {name:'Cody Gakpo', country:'Netherlands', odds:'+4000'},
-  {name:'Ferran Torres', country:'Spain', odds:'+4000'},
-  {name:'Nick Woltemade', country:'Germany', odds:'+4000'},
-  {name:'Michael Olise', country:'France', odds:'+4500'},
-  {name:'Luis Javier Suarez', country:'Colombia', odds:'+4500'},
-  {name:'Charles De Ketelaere', country:'Belgium', odds:'+4500'},
-  {name:'Luis Diaz', country:'Colombia', odds:'+5000'},
-  {name:'Matheus Cunha', country:'Brazil', odds:'+5000'},
-  {name:'Jamal Musiala', country:'Germany', odds:'+5000'},
-  {name:'Ollie Watkins', country:'England', odds:'+5000'},
-  {name:'Bukayo Saka', country:'England', odds:'+5500'},
-  {name:'Jonathan David', country:'Canada', odds:'+6000'},
-  {name:'Bruno Fernandes', country:'Portugal', odds:'+6000'},
-  {name:'Jude Bellingham', country:'England', odds:'+6000'},
-  {name:'Memphis Depay', country:'Netherlands', odds:'+6000'},
-  {name:'Desire Doue', country:'France', odds:'+6000'},
-  {name:'Neymar Jr', country:'Brazil', odds:'+6000'},
-  {name:'Brian Brobbey', country:'Netherlands', odds:'+6000'},
-  {name:'Marcus Thuram', country:'France', odds:'+6500'},
-  {name:'Darwin Nunez', country:'Uruguay', odds:'+6500'},
-  {name:'Enner Valencia', country:'Ecuador', odds:'+6500'},
-  {name:'Jeremy Doku', country:'Belgium', odds:'+6500'},
-  {name:'Eberechi Eze', country:'England', odds:'+6500'},
-  {name:'Leroy Sane', country:'Germany', odds:'+6500'},
-  {name:'Pedro Neto', country:'Portugal', odds:'+6500'},
-  {name:'Alexander Sorloth', country:'Norway', odds:'+8000'},
-  {name:'Rafael Leao', country:'Portugal', odds:'+8000'},
-  {name:'Christian Pulisic', country:'USA', odds:'+8000'},
-  {name:'Sadio Mane', country:'Senegal', odds:'+8000'},
-  {name:'Mohamed Salah', country:'Egypt', odds:'+8000'},
-  {name:'Viktor Gyokeres', country:'Sweden', odds:'+8000'},
-  {name:'Alexander Isak', country:'Sweden', odds:'+8000'},
-  {name:'Endrick', country:'Brazil', odds:'+8000'},
-  {name:'Son Heung-min', country:'South Korea', odds:'+10000'},
-  {name:'Youssef En-Nesyri', country:'Morocco', odds:'+10000'},
-  {name:'Scott McTominay', country:'Scotland', odds:'+10000'},
-  {name:'Santiago Gimenez', country:'Mexico', odds:'+10000'},
-  {name:'Alphonso Davies', country:'Canada', odds:'+10000'},
-  {name:'Arda Guler', country:'Türkiye', odds:'+10000'},
-  {name:'James Rodriguez', country:'Colombia', odds:'+10000'},
-  {name:'Kevin De Bruyne', country:'Belgium', odds:'+10000'},
-  {name:'Nico Williams', country:'Spain', odds:'+10000'},
-  {name:'Nicolas Jackson', country:'Senegal', odds:'+10000'},
-  {name:'Omar Marmoush', country:'Egypt', odds:'+10000'},
-  {name:'Pedri', country:'Spain', odds:'+10000'},
-  {name:'Joao Felix', country:'Portugal', odds:'+10000'},
-  {name:'Martin Odegaard', country:'Norway', odds:'+15000'},
-  {name:'Chris Wood', country:'New Zealand', odds:'+15000'},
-  {name:'Ismaila Sarr', country:'Senegal', odds:'+15000'},
-  {name:'Salem Al-Dawsari', country:'Saudi Arabia', odds:'+17500'},
-  {name:'Musa Al-Taamari', country:'Jordan', odds:'+17500'},
-  {name:'Che Adams', country:'Scotland', odds:'+17500'},
-  {name:'Wilson Isidor', country:'Haiti', odds:'+17500'},
-  {name:'OTHER — Rest of field', country:'', odds:''},
-];
-
-const GOALIES = [
-  {name:'Alisson Becker', country:'Brazil'},
-  {name:'Thibaut Courtois', country:'Belgium'},
-  {name:'Emiliano Martínez', country:'Argentina'},
-  {name:'Unai Simon', country:'Spain'},
-  {name:'Mike Maignan', country:'France'},
-  {name:'Diogo Costa', country:'Portugal'},
-  {name:'Manuel Neuer', country:'Germany'},
-  {name:'Oliver Baumann', country:'Germany'},
-  {name:'Jordan Pickford', country:'England'},
-  {name:'David Raya', country:'Spain'},
-  {name:'Bart Verbruggen', country:'Netherlands'},
-  {name:'Ederson', country:'Brazil'},
-  {name:'Matt Freese', country:'USA'},
-  {name:'Yassine Bounou', country:'Morocco'},
-  {name:'Edouard Mendy', country:'Senegal'},
-  {name:'Raul Rangel', country:'Mexico'},
-  {name:'Orjon Nyland', country:'Norway'},
-  {name:'Camilo Vargas', country:'Colombia'},
-  {name:'Sergio Rochet', country:'Uruguay'},
-  {name:'Gregor Kobel', country:'Switzerland'},
-  {name:'Hernán Galíndez', country:'Ecuador'},
-  {name:'Dominik Livakovic', country:'Croatia'},
-  {name:'Matthew Ryan', country:'Australia'},
-  {name:'Dayne St. Clair', country:'Canada'},
-  {name:'Kristoffer Nordfelt', country:'Sweden'},
-  {name:'Craig Gordon', country:'Scotland'},
-  {name:'OTHER — Rest of field', country:''},
-];
-
-// ─── STATE ──────────────────────────────────────────────────────────────────
-const state = {
-  b1: new Set(), b2: new Set(), b3: new Set(), b4: new Set(),
-  striker: null, gk: null,
+const BAND_TEAMS = {
+  b1: ['France','Spain','England','Brazil','Portugal','Argentina','Germany','Netherlands'],
+  b2: ['Belgium','Norway','Colombia','Japan','Morocco','USA','Uruguay','Mexico','Türkiye','Switzerland','Croatia','Ecuador'],
+  b3: ['Senegal','Austria','Canada','Sweden','Ivory Coast','Scotland','Paraguay','Algeria','Egypt','Ghana','Czechia','South Korea','Iran','Bosnia & Herz.','Tunisia'],
+  b4: ['Cape Verde','Uzbekistan','Curacao','Panama','Haiti','Australia','Qatar','Saudi Arabia','Iraq','Jordan','New Zealand','DR Congo','South Africa'],
 };
 
-// ─── GOOGLE FORM CONFIG ─────────────────────────────────────────────────────
-// TODO: Replace with your actual Google Form action URL and entry IDs
-// How to find these: open your Google Form, click the 3-dot menu → Get pre-filled link,
-// fill in dummy values, copy the URL — each "entry.XXXXXXXXX" is your field ID.
-const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdFZzO7xuG99YaWELfZQISCVNvBLqh6evBaJ--5Xj5wLlfDew/formResponse';
-const FIELDS = {
-  name:    'entry.926946138',
-  email:   'entry.1136309782',
-  b1_1:    'entry.1293924228',
-  b1_2:    'entry.1806115637',
-  b1_3:    'entry.1672792781',
-  b2_1:    'entry.1277933256',
-  b2_2:    'entry.2072918527',
-  b2_3:    'entry.2089056617',
-  b3_1:    'entry.632117826',
-  b3_2:    'entry.2132854503',
-  b3_3:    'entry.1974032900',
-  b4_1:    'entry.298426322',
-  b4_2:    'entry.1594955342',
-  striker: 'entry.866325226',
-  gk:      'entry.171224296',
-};
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let allScores       = {};
+let TEAM_SCORING    = {};
+let STRIKER_SCORING = {};
+let GK_SCORING      = {};
+let activeEntrant   = null;
 
-// ─── RENDER TEAMS ────────────────────────────────────────────────────────────
-function renderBand(bandData) {
-  const { id, max, teams } = bandData;
-  const grid = document.getElementById('grid-' + id);
-  grid.innerHTML = '';
-  teams.forEach((team, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'team-btn';
-    btn.type = 'button';
-    const sel = state[id];
-    if (sel.has(i)) btn.classList.add('selected');
-    if (!sel.has(i) && sel.size >= max) btn.classList.add('disabled');
-    const groupTeams = GROUP_MAP[team.group] || [];
-    const tooltipRows = groupTeams.map(t => {
-      const isThis = t === team.name || t === 'United States' && team.name === 'USA';
-      return `<div class="tooltip-team ${isThis ? 'highlight' : ''}">${t}</div>`;
-    }).join('');
-    btn.innerHTML = `
-      <span class="tname">${team.name}</span>
-      <span class="todds">Group ${team.group} &nbsp;·&nbsp; ${team.odds >= 250000 ? '+250,000' : '+' + team.odds.toLocaleString()}</span>
-      <div class="group-tooltip">
-        <div class="tooltip-header">Group ${team.group}</div>
-        ${tooltipRows}
-      </div>`;
-    btn.onclick = () => toggleTeam(id, i, max);
-    grid.appendChild(btn);
-  });
-  updateCounter(id, max);
-  updateSummary();
-  updateProgress();
+// ─── CSV PARSER ───────────────────────────────────────────────────────────────
+// Handles quoted fields with commas inside them.
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = splitCSVRow(lines[0]).map(h => stripQuotes(h.trim()));
+  return lines.slice(1)
+    .map(line => {
+      const vals = splitCSVRow(line);
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = stripQuotes((vals[i] || '').trim()); });
+      return obj;
+    })
+    .filter(row => Object.values(row).some(v => v !== ''));
 }
 
-function toggleTeam(bandId, idx, max) {
-  const sel = state[bandId];
-  if (sel.has(idx)) { sel.delete(idx); }
-  else if (sel.size < max) { sel.add(idx); }
-  const band = BANDS.find(b => b.id === bandId);
-  renderBand(band);
+// gviz wraps string values in double-quotes; strip them.
+function stripQuotes(s) {
+  if (s.startsWith('"') && s.endsWith('"')) return s.slice(1, -1).replace(/""/g, '"');
+  return s;
 }
 
-function updateCounter(id, max) {
-  const band = BANDS.find(b => b.id === id);
-  const sel = state[id];
-  const cnt = sel.size;
-
-  const dotsEl = document.getElementById('dots-' + id);
-  const statusEl = document.getElementById('status-' + id);
-  const oddsEl = document.getElementById('odds-' + id);
-
-  dotsEl.innerHTML = Array.from({length: max}, (_, i) =>
-    `<span class="dot ${i < cnt ? 'filled' : ''}"></span>`).join('');
-
-  statusEl.textContent = `${cnt} of ${max} selected`;
-  statusEl.className = 'pick-status' + (cnt === max ? ' complete' : '');
-
-  if (oddsEl && band.floor) {
-    const total = [...sel].reduce((sum, idx) => sum + band.teams[idx].odds, 0);
-    const floorFmt = '+' + band.floor.toLocaleString();
-    const totalFmt = '+' + total.toLocaleString();
-    const met = total >= band.floor;
-    oddsEl.textContent = `Odds: ${totalFmt} / min ${floorFmt}`;
-    oddsEl.className = 'odds-counter' + (cnt === 0 ? '' : met ? ' met' : ' unmet');
+function splitCSVRow(row) {
+  const result = [];
+  let inQuote = false, cur = '';
+  for (let i = 0; i < row.length; i++) {
+    const ch = row[i];
+    if (ch === '"') {
+      inQuote = !inQuote;
+    } else if (ch === ',' && !inQuote) {
+      result.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
   }
+  result.push(cur);
+  return result;
 }
 
-// ─── RENDER STRIKERS ─────────────────────────────────────────────────────────
-function renderStrikers(filter) {
-  const list = document.getElementById('list-striker');
-  list.innerHTML = '';
-  const q = (filter || '').toLowerCase();
-  STRIKERS.filter(p => !q || p.name.toLowerCase().includes(q) || p.country.toLowerCase().includes(q))
-    .forEach((p, i) => {
-      const row = document.createElement('div');
-      row.className = 'player-row' + (state.striker === p.name ? ' selected' : '');
-      if (state.striker && state.striker !== p.name) row.classList.add('disabled');
-      row.innerHTML = `
-        <div class="player-check">${state.striker === p.name ? '✓' : ''}</div>
-        <div class="player-info">
-          <div class="player-name">${p.name}</div>
-          ${p.country ? `<div class="player-country">${p.country}</div>` : ''}
-        </div>
-        <div class="player-odds">${p.odds}</div>`;
-      row.onclick = () => {
-        state.striker = state.striker === p.name ? null : p.name;
-        renderStrikers(document.getElementById('striker-search').value);
-        updateStrikerCounter();
-        updateSummary();
-        updateProgress();
-      };
-      list.appendChild(row);
+// ─── PLAYER_SCORING PARSER ────────────────────────────────────────────────────
+// The Player_Scoring tab has duplicate column names (Pct_Picked, Total_Score
+// appear for both strikers and goalkeepers). We parse by column index instead.
+function parsePlayerCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return { strikers: {}, goalkeepers: {} };
+
+  const strikers = {};
+  const goalkeepers = {};
+
+  lines.slice(1).forEach(line => {
+    const cols = splitCSVRow(line).map(c => stripQuotes(c.trim()));
+    // Striker side: col 0=Field_Player, 1=Pct_Picked, 2=Goals, 3=Total_Score
+    const fp    = (cols[0] || '').trim();
+    const fpPct = parseFloat(cols[1]) || 0;
+    const goals = parseFloat(cols[2]) || 0;
+    const fpScore = parseFloat(cols[3]) || 0;
+    if (fp && fp !== 'OTHER - REST OF FIELD' && fp !== 'OTHER - Rest of field' && !/^,/.test(fp)) {
+      strikers[fp] = { pct: fpPct, goals, score: fpScore };
+    }
+    // GK side: col 5=Goalkeeper, 6=Pct_Picked, 7=Clean_Sheets, 8=Total_Score
+    const gk    = (cols[5] || '').trim();
+    const gkPct = parseFloat(cols[6]) || 0;
+    const cs    = parseFloat(cols[7]) || 0;
+    const gkScore = parseFloat(cols[8]) || 0;
+    if (gk && gk !== 'OTHER - REST OF FIELD' && gk !== 'Pool' && gk !== 'Teams') {
+      goalkeepers[gk] = { pct: gkPct, cleanSheets: cs, score: gkScore };
+    }
+  });
+
+  return { strikers, goalkeepers };
+}
+
+// ─── FETCH ────────────────────────────────────────────────────────────────────
+async function fetchCSV(gid) {
+  const res = await fetch(csvUrl(gid), { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
+}
+
+// ─── LOAD ALL DATA ────────────────────────────────────────────────────────────
+async function loadScoringData() {
+  setStatus('loading', 'Loading scores…');
+  document.getElementById('refresh-btn').disabled = true;
+
+  try {
+    const [scoresText, teamText, playerText] = await Promise.all([
+      fetchCSV(GID_SCORES),
+      fetchCSV(GID_TEAM_SCORING),
+      fetchCSV(GID_PLAYER),
+    ]);
+
+    // Scores tab: Entry Name | Points
+    allScores = {};
+    parseCSV(scoresText).forEach(row => {
+      const name = row['Entry Name'] || row['Full Name'] || '';
+      const pts  = parseFloat(row['Points']) || 0;
+      if (name.trim()) allScores[name.trim()] = pts;
     });
-}
 
-function updateStrikerCounter() {
-  const has = !!state.striker;
-  document.getElementById('dots-striker').innerHTML = `<span class="dot ${has ? 'filled' : ''}"></span>`;
-  const s = document.getElementById('status-striker');
-  s.textContent = has ? '1 of 1 selected' : '0 of 1 selected';
-  s.className = 'pick-status' + (has ? ' complete' : '');
-}
+    // Team_Scoring tab: Team | Pct_Picked | Total_Score
+    TEAM_SCORING = {};
+    parseCSV(teamText).forEach(row => {
+      const team = (row['Team'] || '').trim();
+      if (!team) return;
+      TEAM_SCORING[team] = {
+        pct:   parseFloat(row['Pct_Picked'])  || 0,
+        score: parseFloat(row['Total_Score']) || 0,
+      };
+    });
 
-function filterPlayers(type) {
-  renderStrikers(document.getElementById('striker-search').value);
-}
+    // Player_Scoring tab (parsed by column index due to duplicate headers)
+    const { strikers, goalkeepers } = parsePlayerCSV(playerText);
+    STRIKER_SCORING = strikers;
+    GK_SCORING      = goalkeepers;
 
-// ─── RENDER GOALIES ───────────────────────────────────────────────────────────
-function renderGoalies() {
-  const grid = document.getElementById('grid-goalies');
-  grid.innerHTML = '';
-  GOALIES.forEach((g, i) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'goalie-btn' + (state.gk === g.name ? ' selected' : '');
-    btn.innerHTML = `<span class="gname">${g.name}</span><span class="gcountry">${g.country}</span>`;
-    btn.onclick = () => {
-      state.gk = state.gk === g.name ? null : g.name;
-      renderGoalies();
-      updateGKCounter();
-      updateSummary();
-      updateProgress();
-    };
-    grid.appendChild(btn);
-  });
-}
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const hasScores = Object.values(allScores).some(v => v > 0);
+    setStatus('live', hasScores ? `Updated ${timeStr}` : `Updated ${timeStr} — scores pending`);
 
-function updateGKCounter() {
-  const has = !!state.gk;
-  document.getElementById('dots-gk').innerHTML = `<span class="dot ${has ? 'filled' : ''}"></span>`;
-  const s = document.getElementById('status-gk');
-  s.textContent = has ? '1 of 1 selected' : '0 of 1 selected';
-  s.className = 'pick-status' + (has ? ' complete' : '');
-}
+    buildLeaderboard();
+    rebuildPillTooltips();
+    if (activeEntrant) selectEntrant(activeEntrant); // refresh player tooltips
 
-// ─── SUMMARY ─────────────────────────────────────────────────────────────────
-function updateSummary() {
-  const slots = [];
-  const bandLabels = ['Band 1','Band 1','Band 2','Band 2','Band 2','Band 3','Band 3','Band 3','Band 4','Band 4'];
-  const bandIds = ['b1','b1','b2','b2','b2','b3','b3','b3','b4','b4'];
-
-  BANDS.forEach(band => {
-    const picks = [...state[band.id]].map(i => band.teams[i].name);
-    picks.forEach(p => slots.push({label: 'Team', value: p}));
-  });
-  while (slots.length < 11) slots.push({label: 'Team', value: null});
-  slots.push({label: 'Striker', value: state.striker});
-  slots.push({label: 'Goalkeeper', value: state.gk});
-
-  const grid = document.getElementById('summary-grid');
-  grid.innerHTML = slots.map(s => `
-    <div class="summary-chip ${s.value ? 'filled' : ''}">
-      <div class="chip-label">${s.label}</div>
-      <div>${s.value || 'Empty'}</div>
-    </div>`).join('');
-}
-
-// ─── PROGRESS ────────────────────────────────────────────────────────────────
-function updateProgress() {
-  const total = state.b1.size + state.b2.size + state.b3.size + state.b4.size +
-    (state.striker ? 1 : 0) + (state.gk ? 1 : 0);
-  document.getElementById('prog-label').textContent = total + ' / 13 picks';
-  document.getElementById('prog-fill').style.width = Math.round((total / 13) * 100) + '%';
-}
-
-// ─── SUBMIT ───────────────────────────────────────────────────────────────────
-function submitForm() {
-  const name = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const msg = document.getElementById('val-msg');
-
-  if (!name) { msg.textContent = 'Please enter your name.'; return; }
-  if (!email || !email.includes('@')) { msg.textContent = 'Please enter a valid email address.'; return; }
-  if (state.b1.size < 3) { msg.textContent = 'Please select 3 teams from Band 1.'; return; }
-  if (state.b2.size < 3) { msg.textContent = 'Please select 3 teams from Band 2.'; return; }
-  if (state.b3.size < 3) { msg.textContent = 'Please select 3 teams from Band 3.'; return; }
-  if (state.b4.size < 2) { msg.textContent = 'Please select 2 teams from Band 4.'; return; }
-
-  const b1total = [...state.b1].reduce((s, i) => s + BANDS[0].teams[i].odds, 0);
-  if (b1total < 2000) { msg.textContent = `Band 1 combined odds must reach +2,000. You have +${b1total.toLocaleString()} — add a longer-priced pick.`; return; }
-
-  const b2total = [...state.b2].reduce((s, i) => s + BANDS[1].teams[i].odds, 0);
-  if (b2total < 10000) { msg.textContent = `Band 2 combined odds must reach +10,000. You have +${b2total.toLocaleString()} — swap in a longer-priced pick.`; return; }
-
-  if (!state.striker) { msg.textContent = 'Please select your striker.'; return; }
-  if (!state.gk) { msg.textContent = 'Please select your goalkeeper.'; return; }
-  msg.textContent = '';
-
-  const b1picks = [...state.b1].map(i => BANDS[0].teams[i].name);
-  const b2picks = [...state.b2].map(i => BANDS[1].teams[i].name);
-  const b3picks = [...state.b3].map(i => BANDS[2].teams[i].name);
-  const b4picks = [...state.b4].map(i => BANDS[3].teams[i].name);
-
-  const params = new URLSearchParams({
-    [FIELDS.name]:    name,
-    [FIELDS.email]:   email,
-    [FIELDS.b1_1]:    b1picks[0] || '',
-    [FIELDS.b1_2]:    b1picks[1] || '',
-    [FIELDS.b1_3]:    b1picks[2] || '',
-    [FIELDS.b2_1]:    b2picks[0] || '',
-    [FIELDS.b2_2]:    b2picks[1] || '',
-    [FIELDS.b2_3]:    b2picks[2] || '',
-    [FIELDS.b3_1]:    b3picks[0] || '',
-    [FIELDS.b3_2]:    b3picks[1] || '',
-    [FIELDS.b3_3]:    b3picks[2] || '',
-    [FIELDS.b4_1]:    b4picks[0] || '',
-    [FIELDS.b4_2]:    b4picks[1] || '',
-    [FIELDS.striker]: state.striker,
-    [FIELDS.gk]:      state.gk,
-  });
-
-  // Submit to Google Form via hidden iframe (avoids CORS redirect page)
-  let iframe = document.getElementById('submit-iframe');
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.name = 'submit-iframe';
-    iframe.id = 'submit-iframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+  } catch (err) {
+    console.error('Fetch error:', err);
+    // If GIDs are wrong, give a useful hint in the console
+    console.warn('If you see a 400 error, the GIDs in the script config may need updating. Open each tab in your sheet and copy the #gid= number from the URL.');
+    setStatus('error', 'Could not reach sheet — check console for details');
+    buildLeaderboard(); // render at 0 rather than blank
+    rebuildPillTooltips();
   }
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = FORM_ACTION;
-  form.target = 'submit-iframe';
-  form.style.display = 'none';
-  params.forEach((val, key) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = val;
-    form.appendChild(input);
-  });
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
 
-  setTimeout(() => {
-    document.getElementById('main-form').style.display = 'none';
-    document.getElementById('success-screen').style.display = 'block';
-  }, 800);
+  document.getElementById('refresh-btn').disabled = false;
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-BANDS.forEach(renderBand);
-renderStrikers();
-renderGoalies();
-updateSummary();
-updateProgress();
+async function refreshData() {
+  await loadScoringData();
+}
+
+function setStatus(state, text) {
+  const dot = document.getElementById('status-dot');
+  dot.className = 'status-dot' + (state === 'live' ? ' live' : state === 'error' ? ' error' : '');
+  document.getElementById('status-text').textContent = text;
+}
+
+// ─── LEADERBOARD ──────────────────────────────────────────────────────────────
+function buildLeaderboard() {
+  const sorted = [...ENTRANTS].sort((a, b) =>
+    (allScores[b.name] ?? 0) - (allScores[a.name] ?? 0));
+
+  document.getElementById('entry-count').textContent = `${sorted.length} entries`;
+
+  const list = document.getElementById('leaderboard-list');
+  list.innerHTML = sorted.map((e, i) => {
+    const score = allScores[e.name] ?? 0;
+    const rankCls = i === 0 ? ' r1' : i === 1 ? ' r2' : i === 2 ? ' r3' : '';
+    return `
+      <div class="lb-row" id="lb-${slugify(e.name)}" onclick="selectEntrant('${escapeQ(e.name)}')">
+        <div class="lb-rank${rankCls}">${i + 1}</div>
+        <div class="lb-name">${e.name}</div>
+        <div style="text-align:right">
+          <div class="lb-score">${score}</div>
+          <div class="lb-pts">pts</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── PILLS ────────────────────────────────────────────────────────────────────
+function buildPills() {
+  Object.entries(BAND_TEAMS).forEach(([band, teams]) => {
+    const grid = document.getElementById('pills-' + band);
+    grid.innerHTML = teams.map(team => {
+      const d = TEAM_SCORING[team] || { pct: 0, score: 0 };
+      return `
+        <div class="pill" id="pill-${slugify(team)}" data-band="${band}">
+          <span>${team}</span>
+          <span class="pill-group">Group ${GROUP_MAP[team] || '?'}</span>
+          <div class="pill-tooltip">
+            <div class="tt-row"><span class="tt-label">Picked</span><span class="tt-val">${d.pct}%</span></div>
+            <div class="tt-row"><span class="tt-label">Points</span><span class="tt-val gold">${d.score} pts</span></div>
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('band-' + band).style.display = 'block';
+  });
+  document.getElementById('picks-placeholder').style.display = 'none';
+}
+
+// Update tooltip content in place (preserves highlight state after refresh)
+function rebuildPillTooltips() {
+  Object.entries(BAND_TEAMS).forEach(([, teams]) => {
+    teams.forEach(team => {
+      const pill = document.getElementById('pill-' + slugify(team));
+      if (!pill) return;
+      const d = TEAM_SCORING[team] || { pct: 0, score: 0 };
+      const tt = pill.querySelector('.pill-tooltip');
+      if (tt) tt.innerHTML = `
+        <div class="tt-row"><span class="tt-label">Picked</span><span class="tt-val">${d.pct}%</span></div>
+        <div class="tt-row"><span class="tt-label">Points</span><span class="tt-val gold">${d.score} pts</span></div>`;
+    });
+  });
+}
+
+// ─── SELECT ───────────────────────────────────────────────────────────────────
+function buildSelect() {
+  const sel = document.getElementById('entrant-select');
+  ENTRANTS.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.name;
+    opt.textContent = e.name;
+    sel.appendChild(opt);
+  });
+}
+
+function selectEntrant(name) {
+  clearHighlights();
+  if (!name) return;
+  activeEntrant = name;
+  document.getElementById('entrant-select').value = name;
+
+  document.querySelectorAll('.lb-row').forEach(r => r.classList.remove('active'));
+  const lbRow = document.getElementById('lb-' + slugify(name));
+  if (lbRow) { lbRow.classList.add('active'); lbRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+
+  const entrant = ENTRANTS.find(e => e.name === name);
+  if (!entrant) return;
+
+  [...entrant.b1.map(t => ({ team: t, band: 'b1' })),
+   ...entrant.b2.map(t => ({ team: t, band: 'b2' })),
+   ...entrant.b3.map(t => ({ team: t, band: 'b3' })),
+   ...entrant.b4.map(t => ({ team: t, band: 'b4' })),
+  ].forEach(({ team, band }) => {
+    const pill = document.getElementById('pill-' + slugify(team));
+    if (pill) pill.className = `pill selected-${band}`;
+  });
+
+  const striker = document.getElementById('display-striker');
+  const gk = document.getElementById('display-gk');
+  const strikerCell = striker.closest('.player-cell');
+  const gkCell = gk.closest('.player-cell');
+
+  striker.textContent = entrant.striker || '—';
+  striker.className = 'player-name-display' + (entrant.striker ? ' set' : '');
+  gk.textContent = entrant.gk || '—';
+  gk.className = 'player-name-display' + (entrant.gk ? ' set' : '');
+
+  strikerCell.querySelectorAll('.player-tooltip').forEach(el => el.remove());
+  if (entrant.striker) {
+    const sd = STRIKER_SCORING[entrant.striker] || { pct: 0, goals: 0, score: 0 };
+    const tt = document.createElement('div');
+    tt.className = 'player-tooltip';
+    tt.innerHTML = `
+      <div class="tt-row"><span class="tt-label">Picked by</span><span class="tt-val">${sd.pct}%</span></div>
+      <div class="tt-row"><span class="tt-label">Goals</span><span class="tt-val">${sd.goals}</span></div>
+      <div class="tt-row"><span class="tt-label">Points</span><span class="tt-val gold">${sd.score} pts</span></div>`;
+    strikerCell.appendChild(tt);
+  }
+
+  gkCell.querySelectorAll('.player-tooltip').forEach(el => el.remove());
+  if (entrant.gk) {
+    const gd = GK_SCORING[entrant.gk] || { pct: 0, cleanSheets: 0, score: 0 };
+    const tt = document.createElement('div');
+    tt.className = 'player-tooltip';
+    tt.innerHTML = `
+      <div class="tt-row"><span class="tt-label">Picked by</span><span class="tt-val">${gd.pct}%</span></div>
+      <div class="tt-row"><span class="tt-label">Clean sheets</span><span class="tt-val">${gd.cleanSheets}</span></div>
+      <div class="tt-row"><span class="tt-label">Points</span><span class="tt-val gold">${gd.score} pts</span></div>`;
+    gkCell.appendChild(tt);
+  }
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.pill').forEach(p => { p.className = 'pill'; });
+  document.querySelectorAll('.lb-row').forEach(r => r.classList.remove('active'));
+  document.getElementById('display-striker').textContent = '—';
+  document.getElementById('display-striker').className = 'player-name-display';
+  document.getElementById('display-gk').textContent = '—';
+  document.getElementById('display-gk').className = 'player-name-display';
+  document.querySelectorAll('.player-tooltip').forEach(el => el.remove());
+}
+
+function clearSelection() {
+  activeEntrant = null;
+  document.getElementById('entrant-select').value = '';
+  clearHighlights();
+}
+
+function slugify(str) { return str.toLowerCase().replace(/[^a-z0-9]/g, '-'); }
+function escapeQ(str) { return str.replace(/'/g, "\\'"); }
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+function init() {
+  buildPills();
+  buildSelect();
+  loadScoringData();
+}
+
+init();
 </script>
 </body>
 </html>
