@@ -536,8 +536,13 @@ function parsePlayerCSV(text) {
 
 // ─── FETCH ────────────────────────────────────────────────────────────────────
 async function fetchCSV(gid) {
-  const res = await fetch(csvUrl(gid), { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const url = csvUrl(gid);
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error(`Fetch failed for gid=${gid} (${url}): HTTP ${res.status}`, body.slice(0, 300));
+    throw new Error(`HTTP ${res.status}`);
+  }
   return res.text();
 }
 
@@ -546,48 +551,60 @@ async function loadScoringData() {
   setStatus('loading', 'Loading scores…');
   document.getElementById('refresh-btn').disabled = true;
 
-  try {
-    const [scoresText, teamText, playerText] = await Promise.all([
-      fetchCSV(GID_SCORES),
-      fetchCSV(GID_TEAM_SCORING),
-      fetchCSV(GID_PLAYER),
-    ]);
+  const failures = [];
 
-    // Scores tab: Entry Name | Points
+  // Scores tab
+  try {
+    const scoresText = await fetchCSV(GID_SCORES);
     allScores = {};
     parseCSV(scoresText).forEach(row => {
       const name = row['Entry Name'] || row['Full Name'] || '';
       const pts  = parseFloat(row['Points']) || 0;
       if (name.trim()) allScores[name.trim()] = pts;
     });
+    if (Object.keys(allScores).length === 0) failures.push('Scores (empty result)');
+  } catch (err) {
+    console.error('Scores tab fetch failed:', err);
+    failures.push('Scores');
+  }
 
-    // Team_Scoring tab parsed by column index (col 0=Team, 1=Pct_Picked, 2=Total_Score).
-    // Header-based parsing breaks because gviz reformats % values and the tab has
-    // extra pivot data below the main table that confuses column alignment.
+  // Team_Scoring tab
+  try {
+    const teamText = await fetchCSV(GID_TEAM_SCORING);
     TEAM_SCORING = {};
     parseTeamCSV(teamText);
+    if (Object.keys(TEAM_SCORING).length === 0) failures.push('Team_Scoring (empty result)');
+  } catch (err) {
+    console.error('Team_Scoring tab fetch failed:', err);
+    failures.push('Team_Scoring');
+  }
 
-    // Player_Scoring tab (parsed by column index due to duplicate headers)
+  // Player_Scoring tab
+  try {
+    const playerText = await fetchCSV(GID_PLAYER);
     const { strikers, goalkeepers } = parsePlayerCSV(playerText);
     STRIKER_SCORING = strikers;
     GK_SCORING      = goalkeepers;
+    if (Object.keys(strikers).length === 0) failures.push('Player_Scoring (empty result)');
+  } catch (err) {
+    console.error('Player_Scoring tab fetch failed:', err);
+    failures.push('Player_Scoring');
+  }
 
-    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  if (failures.length === 0) {
     const hasScores = Object.values(allScores).some(v => v > 0);
     setStatus('live', hasScores ? `Updated ${timeStr}` : `Updated ${timeStr} — scores pending`);
-
-    buildLeaderboard();
-    rebuildPillTooltips();
-    if (activeEntrant) selectEntrant(activeEntrant); // refresh player tooltips
-
-  } catch (err) {
-    console.error('Fetch error:', err);
-    // If GIDs are wrong, give a useful hint in the console
-    console.warn('If you see a 400 error, the GIDs in the script config may need updating. Open each tab in your sheet and copy the #gid= number from the URL.');
-    setStatus('error', 'Could not reach sheet — check console for details');
-    buildLeaderboard(); // render at 0 rather than blank
-    rebuildPillTooltips();
+  } else if (failures.length === 3) {
+    setStatus('error', `Could not reach sheet (${timeStr}) — check console`);
+  } else {
+    setStatus('error', `${failures.join(', ')} failed to load (${timeStr}) — check console`);
   }
+
+  buildLeaderboard();
+  rebuildPillTooltips();
+  if (activeEntrant) selectEntrant(activeEntrant);
 
   document.getElementById('refresh-btn').disabled = false;
 }
