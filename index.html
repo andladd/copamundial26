@@ -449,15 +449,21 @@ let activeEntrant   = null;
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
-  const headers = splitCSVRow(lines[0]);
+  const headers = splitCSVRow(lines[0]).map(h => stripQuotes(h.trim()));
   return lines.slice(1)
     .map(line => {
       const vals = splitCSVRow(line);
       const obj = {};
-      headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim(); });
+      headers.forEach((h, i) => { obj[h] = stripQuotes((vals[i] || '').trim()); });
       return obj;
     })
     .filter(row => Object.values(row).some(v => v !== ''));
+}
+
+// gviz wraps string values in double-quotes; strip them.
+function stripQuotes(s) {
+  if (s.startsWith('"') && s.endsWith('"')) return s.slice(1, -1).replace(/""/g, '"');
+  return s;
 }
 
 function splitCSVRow(row) {
@@ -512,12 +518,11 @@ function parsePlayerCSV(text) {
   const goalkeepers = {};
 
   lines.slice(1).forEach(line => {
-    const cols = splitCSVRow(line);
-    // Striker side: col 0=Field_Player, 1=Pct_Picked, 2=Goals, 3=Total_Score
-    const fp    = (cols[0] || '').trim();
+    const cols = splitCSVRow(line).map(c => stripQuotes(c.trim()));
     const fpPct = parseFloat(cols[1]) || 0;
     const goals = parseFloat(cols[2]) || 0;
     const fpScore = parseFloat(cols[3]) || 0;
+    const fp = cols[0] || '';
     if (fp && fp !== 'OTHER - REST OF FIELD' && fp !== 'OTHER - Rest of field' && !/^,/.test(fp)) {
       strikers[fp] = { pct: fpPct, goals, score: fpScore };
     }
