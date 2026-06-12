@@ -359,8 +359,8 @@ main {
 //   4. Paste them below
 //
 // HOW TO PUBLISH:
-//   Just share as "Anyone with the link can view" — no "Publish to web" needed.
-//   The gviz endpoint handles CORS for any publicly shared sheet.
+//   File → Share → Publish to web → publish "Entire Document" as CSV
+//   (or publish each tab individually — either works)
 // ─────────────────────────────────────────────────────────────────────────────
 const SHEET_ID = '1lYFSVVZAxDFHjLXDkyvtMQ_IMnDh4YPWV9G9DaNUUVg';
 
@@ -370,9 +370,9 @@ const GID_TEAM_SCORING = '73084039';  // Team_Scoring tab gid
 const GID_PLAYER       = '201098823';  // Player_Scoring tab gid
 
 function csvUrl(gid) {
-  // gviz endpoint supports CORS for publicly shared sheets (no sign-in required).
-  // Requires the sheet to be shared as "Anyone with the link can view".
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+  // Uses the export endpoint — works for sheets shared as "Anyone with the link can view"
+  // without needing to publish to web separately.
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
 }
 
 // ─── ENTRANTS (all 35) ────────────────────────────────────────────────────────
@@ -412,6 +412,9 @@ const ENTRANTS = [
   { name:'Sean Murphy',                b1:['France','Spain','Germany'],          b2:['Belgium','Japan','Colombia'],       b3:['Senegal','Canada','Ivory Coast'],      b4:['Cape Verde','Australia'],     striker:'Lamine Yamal',         gk:'Thibaut Courtois' },
   { name:'Colin Derhammer',            b1:['France','Spain','Germany'],          b2:['Norway','Colombia','Japan'],        b3:['Canada','Egypt','South Korea'],        b4:['New Zealand','DR Congo'],     striker:'Lamine Yamal',         gk:'Emiliano Martínez' },
   { name:'Pat Collins',                b1:['Brazil','France','Argentina'],       b2:['USA','Ecuador','Belgium'],          b3:['Senegal','Scotland','Ivory Coast'],    b4:['Panama','Australia'],         striker:'Harry Kane',            gk:'Alisson Becker' },
+  { name:'Trung Nguy',                 b1:['Spain','France','Netherlands'],      b2:['Mexico','Norway','Japan'],          b3:['Senegal','Ivory Coast','South Korea'], b4:['Australia','Panama'],         striker:'Kylian Mbappe',        gk:'Unai Simon' },
+  { name:'Jeff Morreale',              b1:['France','Brazil','Portugal'],        b2:['Norway','Japan','USA'],             b3:['Sweden','Paraguay','Austria'],         b4:['Curacao','Australia'],        striker:'Harry Kane',            gk:'Mike Maignan' },
+  { name:'Dontarie Stallings',         b1:['France','Germany','Brazil'],         b2:['USA','Switzerland','Croatia'],      b3:['Ghana','Senegal','Sweden'],            b4:['Panama','Haiti'],             striker:'Lamine Yamal',         gk:'Manuel Neuer' },
 ];
 
 const GROUP_MAP = {
@@ -446,21 +449,15 @@ let activeEntrant   = null;
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
-  const headers = splitCSVRow(lines[0]).map(h => stripQuotes(h.trim()));
+  const headers = splitCSVRow(lines[0]);
   return lines.slice(1)
     .map(line => {
       const vals = splitCSVRow(line);
       const obj = {};
-      headers.forEach((h, i) => { obj[h] = stripQuotes((vals[i] || '').trim()); });
+      headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim(); });
       return obj;
     })
     .filter(row => Object.values(row).some(v => v !== ''));
-}
-
-// gviz wraps string values in double-quotes; strip them.
-function stripQuotes(s) {
-  if (s.startsWith('"') && s.endsWith('"')) return s.slice(1, -1).replace(/""/g, '"');
-  return s;
 }
 
 function splitCSVRow(row) {
@@ -480,6 +477,30 @@ function splitCSVRow(row) {
   return result;
 }
 
+// ─── TEAM_SCORING PARSER ──────────────────────────────────────────────────────
+// Parsed by column index: col 0=Team, 1=Pct_Picked, 2=Total_Score.
+// Avoids gviz reformatting % values as numbers and extra pivot rows below the table.
+function parseTeamCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  // Known team names — used to filter out header row and extra pivot data below
+  const knownTeams = new Set([
+    'France','Spain','England','Brazil','Portugal','Argentina','Germany','Netherlands',
+    'Belgium','Norway','Colombia','Japan','Morocco','USA','Uruguay','Mexico','Türkiye',
+    'Switzerland','Croatia','Ecuador','Senegal','Austria','Canada','Sweden','Ivory Coast',
+    'Scotland','Paraguay','Algeria','Egypt','Ghana','Czechia','South Korea','Iran',
+    'Bosnia & Herz.','Tunisia','Cape Verde','Uzbekistan','Curacao','Panama','Haiti',
+    'Australia','Qatar','Saudi Arabia','Iraq','Jordan','New Zealand','DR Congo','South Africa',
+  ]);
+  lines.forEach(line => {
+    const cols = splitCSVRow(line).map(c => stripQuotes(c.trim()));
+    const team = cols[0];
+    if (!knownTeams.has(team)) return; // skip header, blank, and pivot rows
+    const pct   = parseFloat(cols[1]) || 0;   // gviz may give "34" or "34%" — parseFloat handles both
+    const score = parseFloat(cols[2]) || 0;
+    TEAM_SCORING[team] = { pct, score };
+  });
+}
+
 // ─── PLAYER_SCORING PARSER ────────────────────────────────────────────────────
 // The Player_Scoring tab has duplicate column names (Pct_Picked, Total_Score
 // appear for both strikers and goalkeepers). We parse by column index instead.
@@ -491,7 +512,7 @@ function parsePlayerCSV(text) {
   const goalkeepers = {};
 
   lines.slice(1).forEach(line => {
-    const cols = splitCSVRow(line).map(c => stripQuotes(c.trim()));
+    const cols = splitCSVRow(line);
     // Striker side: col 0=Field_Player, 1=Pct_Picked, 2=Goals, 3=Total_Score
     const fp    = (cols[0] || '').trim();
     const fpPct = parseFloat(cols[1]) || 0;
@@ -540,16 +561,11 @@ async function loadScoringData() {
       if (name.trim()) allScores[name.trim()] = pts;
     });
 
-    // Team_Scoring tab: Team | Pct_Picked | Total_Score
+    // Team_Scoring tab parsed by column index (col 0=Team, 1=Pct_Picked, 2=Total_Score).
+    // Header-based parsing breaks because gviz reformats % values and the tab has
+    // extra pivot data below the main table that confuses column alignment.
     TEAM_SCORING = {};
-    parseCSV(teamText).forEach(row => {
-      const team = (row['Team'] || '').trim();
-      if (!team) return;
-      TEAM_SCORING[team] = {
-        pct:   parseFloat(row['Pct_Picked'])  || 0,
-        score: parseFloat(row['Total_Score']) || 0,
-      };
-    });
+    parseTeamCSV(teamText);
 
     // Player_Scoring tab (parsed by column index due to duplicate headers)
     const { strikers, goalkeepers } = parsePlayerCSV(playerText);
